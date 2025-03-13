@@ -116,6 +116,9 @@ on death of a player:
 	set level progress of victim to 0
 #ヒット,死亡の処理
 on death of player:
+	if scoreboard tags of victim contains "sitai":
+		remove "sitai" from scoreboard tags of victim
+		stop
 	add name of victim to {death::*} if victim do not contain {death::*}
 	if attacker is not player:
 		send "&l[&4&ldeath&f&l] &e≫&6&l≫&c&l≫&4&l≫ &4&l %victim%" to all players
@@ -138,7 +141,10 @@ on death of player:
 on damage of player:
 	attacker is not victim
 	attacker is player
-
+	loop {target::%victim%::*}:
+		if loop-value is attacker:
+			cancel event
+			stop
 	damage is not 0
 	if damage type of damage source = arrow:
 		set {_d} to distance between attacker and victim
@@ -296,7 +302,6 @@ on damage of player:
 
 
 #分身
-#分身
 on player drop of an bow:
 	set {_o} to objective with id "ability"
 	score of player for {_o} is 30
@@ -401,26 +406,35 @@ on player drop of an bow:
 	score of player for {_o} is 23
 	set {_o} to objective with id "ability_ct"
 	score of player for {_o} >= 650
-	if {death::*} is set:
-		set {_} to last element of {death::*}
-		loop 30 time:
-			play sound "block.anvil.land" to {_}
-			send title "&cあなたは召喚されます" with subtitle "召喚者のために真面目に戦ってください" to {_}
+	if last element of {death::*} is set:
+		set {_o} to objective with id "ability"
+		set {_d} to last element of {death::*} parsed as player
+		send "あなたは召喚されました%nl%召喚者%player%のため30秒間頑張ってください" to {_d}
+		set {_d}'s gamemode to adventure
+		teleport {_d} to player
+		set {_d}'s max health attribute to 1
+		add {_d} to {target::%player%::*}
+		add "sitai" to scoreboard tags of {_d}
+		set {_a} to score of {_d} for {_o}
+		set score of {_d} for {_o} to 514
+		loop 25 time:
+			play sound "block.anvil.land" at {_d} to {_d}
 			wait tick
-		send "あなたは召喚されました%nl%せっかく遊べる時間が増えるんだから召喚者のために真面目に戦ってください" to {_}
-		set {_}'s gamemode to adventure
-		set {_}'s max health attribute to 1
-		add {_} to {target::%player%::*}
+		loop 30*20 time:
+			wait tick
+			{_d}'s gamemode is spectator
+			set score of {_d} for {_o} to {_a}
+			stop loop
+		{_d}'s gamemode is adventure
+		kill {_d}
+		send "任期満了です" to {_d}
+		set score of {_d} for {_o} to {_a}
 	else:
 		spawn husk at player
 		set {_e} to last spawned husk
 		push {_e} horizontally forward at speed 2
 		set name of last spawned husk to "&b%player%のしもべ"
 		add last spawned husk to {target::%player%::*}
-on damage:
-	loop {target::%victim%::*}:
-		if loop-value is victim:
-			cancel event
 on death of player:
 	loop indices of {target::*}:
 		{target::%loop-value%::*} contains victim
@@ -472,6 +486,8 @@ on player drop of an bow:
 		set {_t::*} to player if {_s} is true
 		set {_t::*} to all players in radius 30 meter around player where [gamemode of player input is adventure or survival] if {_s} is false
 		remove all player from {_t::*} if {_s} is false
+		if {mode} is 2 or 3:
+			remove all players where [team of player input is team of player] from {_t} if {_s} is false
 		set {_t::*}'s velocity to {_v} * 0.25
 		wait tick
 #跳弾   
@@ -573,6 +589,7 @@ on sneak toggle:
 			stop loop
 		wait tick
 		set item cooldown of bow and potion for player to 20 tick
+ 
 		teleport {_a} 2 meters above player
 		teleport {_a} 3 meter horizontally forward {_a}
 		set yaw of {_a} to yaw of player

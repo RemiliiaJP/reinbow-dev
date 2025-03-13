@@ -10,7 +10,6 @@ command /start-duo:
 			add loop-player to team named "%round(loop-counter/2)%"
 			loop-counter is size of all players
 			mod(size of all players, 2) is not 0
-			set gamemode of loop-player to spectator
 			send "&7ごめんなさい。チーム配る時に余ったプレイヤーのバグが直る事を祈ってください。" to loop-player
 		do while {game} is true:  
 			wait tick
