@@ -1,0 +1,14 @@
+on command /halfandhalf:
+    permission: op
+    trigger:
+        command "/start"	
+        remove all players from all teams
+        loop shuffled all players:
+            add loop-player to team named "%mod(loop-counter, 2)+1%"
+        do while {game} is true:  
+            wait tick
+            loop all players:
+                set {_t::*} to teams(loop-player)
+                loop {_t::*}:
+                    command "glow %loop-value-2% %loop-player-1% green"
+            

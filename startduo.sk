@@ -74,7 +74,7 @@ on sneak toggle:
 	{mode} >= 2
 	do while player is sneaking:
 		wait tick
-		if tool is compass:
+		if tool is not compass:
 			stop loop
 		play sound "block.note_block.pling" with volume 0.2 and pitch loop-counter*0.01
 		loop-counter is 200
@@ -86,7 +86,20 @@ on sneak toggle:
 			set {_tm} to loop-player
 			teleport player to {_tm}
 		stop
-		
+on sneak toggle:
+	{mode} >= 2
+	do while player is sneaking:
+		wait tick
+		if tool is not beacon:
+			stop loop
+		play sound "wither_skeleton" with volume 0.2 and pitch loop-counter*0.01
+		loop-counter is 200
+		set {_tm} to random element of teams(player) 
+		set {_tm}'s gamemode to adventure
+		send "&b&l%{_tm}%が蘇生されました" to all players
+		play sound "entity.wither.ambient" to all players
+		teleport {_tm} to player
+		stop
 left click:
 	tool is spyglass
 	kill {pin::%player%}

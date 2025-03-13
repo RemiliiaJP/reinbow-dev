@@ -9,7 +9,19 @@ every second:
 		loop-player's y-coordinate <= 260
 		damage loop-player by 0.01
 		set gamemode of loop-player to spectator
-command /send <player> <text>:
-	permission: op
-	trigger:
-		send arg-1 to server arg-2
+function teams(p: player) :: players:
+	if team of {_p} is not set:
+		return {_p}
+	set {_t} to team of {_p}
+	loop all players:
+		team of loop-player is {_t}
+		add loop-player to {_e::*}
+	return {_e::*}
+function enemys(p: player) :: players:
+	if team of {_p} is not set:
+		return {_p}
+	set {_t} to team of {_p}
+	loop all players:
+		team of loop-player is not {_t}
+		add loop-player to {_e::*}
+	return {_e::*}
