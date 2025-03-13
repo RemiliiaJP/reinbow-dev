@@ -1,0 +1,56 @@
+right click:
+	tool is nether star
+	admin_menu(player)
+every 5 tick:
+	{game} is false
+	loop all players:
+		loop-player has scoreboard tag "kanr"
+		set slot 7 of loop-player to nether star named "管理者メニュー"
+function admin_menu(p: player):
+	set {_gui} to chest inventory with 1 rows named "設定"
+
+	set slot 0 of {_gui} to bow named "&7ゲーム開始"
+	set slot 2 of {_gui} to arrow named "ゲームモード選択" with lore "モード: solo" if {menu.mode} is 0
+	set slot 2 of {_gui} to tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/solo" if {menu.mode} is 1
+	set slot 2 of {_gui} to spectral arrow named "ゲームモード選択" with lore "モード: duo" if {menu.mode} is 2
+	set slot 2 of {_gui} to stick named "ゲームモード選択" with lore "モード: 自由選択/duo" if {menu.mode} is 3
+	set slot 8 of {_gui} to chest named "能力GUIを開く"
+	open {_gui} to {_p}
+on load:
+	set {menu.mode} to 0
+on inventory click:
+	name of event-inventory is "設定"
+	cancel event
+	event-inventory is not player's inventory
+	if index of event-slot is 0:
+		if {menu.mode} is 0:
+			player command "start"
+		if {menu.mode} is 1:
+			player command "select-mode"	
+		if {menu.mode} is 2:
+			player command "start-duo"
+		if {menu.mode} is 3:
+			player command "select-duo"
+	if index of event-slot is 2:
+		if {menu.mode} is 0:
+			set {menu.mode} to 1
+			send "能力自由選択/soloに設定されました" to all players
+			set slot 2 of event-inventory to tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/solo"
+		else if {menu.mode} is 1:
+			set {menu.mode} to 2
+			send "duoモードに設定されました" to all players
+			set slot 2 of event-inventory to spectral arrow named "ゲームモード選択" with lore "モード: duo"
+		else if {menu.mode} is 2:
+			set {menu.mode} to 3
+			send "能力自由選択/duoに設定されました" to all players
+			set slot 2 of event-inventory to stick named "ゲームモード選択" with lore "モード: 自由選択/duo"
+		else if {menu.mode} is 3:
+			set {menu.mode} to 0
+			send "soloに設定されました" to all players
+			set slot 2 of event-inventory to arrow named "ゲームモード選択" with lore "モード: solo"
+		
+		
+	if index of event-slot is 8:
+		player command "/gui"
+						
+	set slot 2 of {_gui} to bow named "ゲームモード選択"

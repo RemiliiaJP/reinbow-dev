@@ -1,0 +1,38 @@
+every 10 tick:
+	loop all players:
+		send action bar "mode: %{mode}% game: %{game}% cool: %score of loop-player for {_o}%" to loop-player
+on command "/start":
+	command "/setblock -29 268 9 minecraft:redstone_block keep"
+	wait 5 tick
+	loop all players:
+		set slot 0 of loop-player to bow
+on command "/end":					
+	command "/setblock -29 268 7 minecraft:redstone_block keep"
+on death:
+	set gamemode of victim to spectator
+command /sandback:
+	trigger:
+		spawn stray at player:
+			set ai of stray to false
+			set {_s} to stray
+		command "/disguuid %uuid of stray% Player miyabichan0 setArrowsSticking 0 setHealth %health of stray% setName sandbag setTablistName sandbag"
+		do while {_s} is alive:
+			wait tick
+			loop all players in radius 1.5 meter around {_s}:
+				set {_d} to damage source from arrow directly by {_s}
+				force loop-player to attack {_s}
+on damage of stray:
+    damage is not 0
+    if damage type of damage source = arrow:
+        set {_d} to distance between attacker and victim
+        command "/disguuid %uuid of victim% Player miyabichan0 setArrowsSticking 0 setHealth %health of victim% setName sandbag setTablistName sandbag"
+        if victim's health is 1 ,0.5 or 0:
+            heal victim by 5 
+        add 0.25 to {tier::%attacker%}
+        add 1 to {hit::%name of attacker%}
+        send "&l[&c&lsandbag&f&l] %attacker% &e&l≫&6&l≫&c&l≫&4&l≫ &f&l sandbag &7(%{_d}%m)" to attacker
+        send title "" with subtitle "&c&hit &6➳ &f&lsandbag &6&l(%{_d}%m)" to attacker
+        give tipped arrow named "[%{_d}%m HIT] おめでとう!" to attacker if {_d} >= 100
+        play sound "entity.experience_orb.pickup" to attacker
+        execute console command "scoreboard players add %shooter% tough_arrowhit 1"
+        execute console command "scoreboard players add %shooter% arrow_hit 1"
