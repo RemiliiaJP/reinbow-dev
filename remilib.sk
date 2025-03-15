@@ -15,6 +15,7 @@ function teams(p: player) :: players:
 	set {_t} to team of {_p}
 	loop all players:
 		team of loop-player is {_t}
+		loop-player is not {_p}
 		add loop-player to {_e::*}
 	return {_e::*}
 function enemys(p: player) :: players:
@@ -25,3 +26,7 @@ function enemys(p: player) :: players:
 		team of loop-player is not {_t}
 		add loop-player to {_e::*}
 	return {_e::*}
+command /send <player> <text>:
+	permission: op
+	trigger:
+		send arg-1 to server arg-2
