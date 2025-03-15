@@ -141,10 +141,6 @@ on death of player:
 on damage of player:
 	attacker is not victim
 	attacker is player
-	loop {target::%victim%::*}:
-		if loop-value is attacker:
-			cancel event
-			stop
 	damage is not 0
 	if damage type of damage source = arrow:
 		set {_d} to distance between attacker and victim
@@ -157,8 +153,10 @@ on damage of player:
 		play sound "entity.experience_orb.pickup" to attacker
 		execute console command "scoreboard players add %shooter% tough_arrowhit 1"
 		execute console command "scoreboard players add %shooter% arrow_hit 1"
-
-		
+projectile hit:
+	loop {target::%victim%::*}:
+		if loop-value is shooter:
+			cancel event
 
 #興奮
 on damage:
@@ -307,32 +305,59 @@ on player drop of an bow:
 	score of player for {_o} is 30
 	set {_o} to objective with id "ability_ct"
 	score of player for {_o} >= 240
+	if size of all villagers >= 2:
+		kill last spawned villager
 	spawn villager at player
 	set {_e} to last spawned villager
-	execute console command "/disguuid %uuid of {_e}% Player %name of player% setNameVisible false setItemInMainHand bow"
+	add {_e} to {target::%player%::*}
+	execute console command "/disguuid %uuid of {_e}% Player %name of player% setNameVisible false setItemInMainHand bow setSprinting true"
 	set pitch of {_e} to pitch of player
 	set health of {_e} to 1
+	push {_e} horizontally forward
 	set yaw of {_e} to yaw of player
 	set {_p} to pitch of player
 	set {_y} to yaw of player
+	set {_e}'s ai to false
+	loop 1+20 * size of all villagers time:
+		add location of player to {_l::*}
+		wait tick
 	while {_e} is alive:
+		add location of player to {_l::*}
 		if player is not sneaking:
 			set {_p} to pitch of player
 			set {_y} to yaw of player
+		wait 1 tick	
 		set pitch of {_e} to {_p}
 		set yaw of {_e} to {_y}
-		push {_e} horizontally forward at speed 0.1
-		wait 1 tick
-
-
+		teleport {_e} to {_l::%loop-counter%}
+		if gamemode of player is spectator:
+			kill {_e}
 on damage of villager:
+	if attacker is villager:
+		cancel event
 	attacker is player
 	delete victim
 	send title "デコイ を攻撃した！" with subtitle "ばーか" to attacker
 	command "/effect give %attacker% minecraft:night_vision 10 0 true"
 	command "/effect give %attacker% minecraft:darkness 10 0 true"
 	command "/effect give %attacker% minecraft:blindness 2 0 true"
-
+on left click:
+	set {_o} to objective with id "ability"
+	score of player for {_o} is 30
+	set {_o} to objective with id "ability_ct"
+	score of player for {_o} >= 50
+	remove 50 from score of player for {_o}
+	set {_l} to location of player
+	set {_v} to last spawned villager
+	{_v} is alive
+	teleport player to {_v}
+	teleport {_v} to {_l}
+on entity shoot bow:
+	set {_o} to objective with id "ability"
+	score of shooter for {_o} is 30
+	loop all villagers:
+		wait 20 tick
+		shoot projectile entity from loop-entity at speed bow force
 #吸収
 on damage of player:
 	set {_o} to objective with id "ability"
@@ -358,8 +383,9 @@ on player drop of an bow:
 	play sound "minecraft:block.beacon.deactivate" with pitch 2 at player to all players
 	loop all players:
 		loop-player is not player
-		set {_s} to damage source from player_explosion caused by player
-		damage loop-player by {NoTD::%player%} with {_s}
+		loop-player's gamemode is adventure
+		team of loop-player is team of player if mode is 2 or 3
+		damage loop-player by {NoTD::%player%} 
 	heal player by {NoTD::%player%}
 	set {NoTD::%player%} to 0
 
@@ -411,6 +437,7 @@ on player drop of an bow:
 		set {_d} to last element of {death::*} parsed as player
 		send "あなたは召喚されました%nl%召喚者%player%のため30秒間頑張ってください" to {_d}
 		set {_d}'s gamemode to adventure
+		give bow to player
 		teleport {_d} to player
 		set {_d}'s max health attribute to 1
 		add {_d} to {target::%player%::*}
@@ -685,6 +712,7 @@ on drop of bow:
 		loop all blocks in radius 2 around loop-value:
 			loop-block is air
 			make player see loop-block as air
+			make {_t::*} see loop-block as air if {mode} is 2 or 3
 		wait tick if random integer between 2 to 0 is 0
 on right click:
 	gamemode of player is spectator
