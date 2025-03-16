@@ -7,8 +7,10 @@ command /halfandhalf:
         remove all players from all teams
         loop shuffled all players:
             add loop-player to team named "%mod(loop-counter, 2)+1%"
+            set allow friendly fire team state of team named "%mod(loop-counter, 2)+1%" to false
+            command "/team modify %mod(loop-counter, 2)+1% nametagVisibility hideForOtherTeams"
         do while {game} is true:  
-            wait 5 tick
+            wait tick
             {game} is true
             loop all players:
                 set {_t::*} to teams(loop-player)

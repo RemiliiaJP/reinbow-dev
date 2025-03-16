@@ -54,7 +54,7 @@ function heart(p: player) :: text:
 
 inventory click:
 	{game} is true
-	event-slot is 9,10,11,12,13,14,15,16,17 or 18
+	event-slot is 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25 or 26
 	cancel event
 player drop:
 	{game} is true

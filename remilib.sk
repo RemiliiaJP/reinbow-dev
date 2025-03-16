@@ -4,11 +4,7 @@ command /skr <text=yumikoku.sk>:
 	permission: player
 	trigger:
 		player command "/sk reload %arg%"
-every second:
-	loop all players:
-		loop-player's y-coordinate <= 260
-		damage loop-player by 0.01
-		set gamemode of loop-player to spectator
+
 function teams(p: player) :: players:
 	if team of {_p} is not set:
 		return {_p}
@@ -30,3 +26,8 @@ command /send <player> <text>:
 	permission: op
 	trigger:
 		send arg-1 to server arg-2
+
+function syncscore():
+	set {_o} to objective with id "info"
+	set score of "$mode" for {_o} to {mode}
+	
