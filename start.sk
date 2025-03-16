@@ -189,8 +189,8 @@ every 1 tick:
 	loop all players:
 		set {_o} to objective with id "ability"
 		score of loop-player for {_o} is 17
-		command "glow unset @a %loop-player-1%"
 		loop all players:
+			command "glow unset %loop-player-2% %loop-player-1%"
 			set {_d} to distance between loop-player-1 and loop-player-2
 			{_d} is smaller than 160
 			loop-player-2 is not loop-player-1
@@ -202,7 +202,7 @@ every 1 tick:
 			set {_l} to loop-player-1's level+level progress of loop-player-1
 			{_l} <= {tier::%loop-player-1%}
 			increase level progress of loop-player-1 by 0.01
-
+		
 
 on death of player:
 	set {_o} to objective with id "ability"
@@ -270,7 +270,7 @@ every tick:
 	loop all players:
 		gamemode of loop-player is adventure or survival
 		score of loop-player for {_o} is 26
-		health of loop-player <= 1
+		health of loop-player < 1.5
 		set {_l} to loop-player's level+level progress of loop-player
 		{_l} <= {tier::%loop-player%}
 		increase level progress of loop-player by 0.01
@@ -287,7 +287,9 @@ on damage:
 		wait 5 tick
 		command "/glow %attacker% %victim% blue NEVER ALWAYS"
 		stop loop if health of victim >= 1.5
+		stop loop if {game} is not true
 	command "/glow unset %attacker% %victim%"
+
 		
 on death of player:
 	set {_o} to objective with id "ability"
@@ -309,10 +311,9 @@ on player drop of an bow:
 	score of player for {_o} is 30
 	set {_o} to objective with id "ability_ct"
 	score of player for {_o} >= 240
-	if size of all villagers >= 5:
-		kill last spawned villager
 	spawn villager at player
 	set {_e} to last spawned villager
+	add {_e} to {a30::%player%::*}
 	add {_e} to {target::%player%::*}
 	execute console command "/disguuid %uuid of {_e}% Player %name of player% setNameVisible false setItemInMainHand bow setSprinting true"
 	set pitch of {_e} to pitch of player
@@ -322,7 +323,18 @@ on player drop of an bow:
 	set {_p} to pitch of player
 	set {_y} to yaw of player
 	set {_e}'s ai to false
-	loop 1+20 * size of all villagers time:
+	if size of {a30::%player%::*} is 1:
+		set name of {_e} to "1"
+	else if name of {a30::%player%::%size of {a30::%player%::*}%} parsed as number is size of {a30::%player%::*}-1:
+		set name of {_e} to "%size of {a30::%player%::*}%"
+	else:
+		loop {a30::%player%::*}:
+			name of loop-value parsed as number is not loop-counter
+			set name of {_e} to "%loop-counter%"
+			stop loop
+	if name of {_e} parsed as number >= 5:
+		kill last element of {a30::%player%::*}
+	loop 20 * name of {_e} parsed as number time:
 		add location of player to {_l::*}
 		wait tick
 	while {_e} is alive:
@@ -336,6 +348,7 @@ on player drop of an bow:
 		teleport {_e} to {_l::%loop-counter%}
 		if gamemode of player is spectator:
 			kill {_e}
+	remove {_e} from {a30::%player%::*}
 on damage of villager:
 	if attacker is villager:
 		cancel event
@@ -359,10 +372,13 @@ on left click:
 on entity shoot bow:
 	set {_o} to objective with id "ability"
 	score of shooter for {_o} is 30
-	loop all villagers:
-		wait 20 tick
-		loop-entity is alive
-		shoot projectile entity from loop-entity at speed bow force
+	loop {a30::%shooter%::*}:
+		loop name of loop-value parsed as number-{_a} time:
+			wait second
+			add 1 to {_a} 
+		loop-value is alive
+		shoot projectile entity from loop-value at speed bow force
+		
 #吸収
 on damage of player:
 	set {_o} to objective with id "ability"
@@ -510,6 +526,7 @@ on damage:
 		make 12 of dragon_breath at victim with delta vector(1,1,1) with extra 0.2 for all players
 		make 10 of wax_off at victim with delta vector(1,1,1) with extra 1 for all players
 		wait tick
+		stop loop if gamemode of victim is adventure
 	unequip elytra from victim
 	
 #引力  引き力
@@ -528,7 +545,7 @@ on player drop of an bow:
 		set {_t::*} to all players in radius 30 meter around player where [gamemode of player input is adventure or survival] if {_s} is false
 		remove all player from {_t::*} if {_s} is false
 		if {mode} is 2, 3 or 4:
-			remove all players where [team of player input is team of player] from {_t} if {_s} is false
+			remove all players where [team of player input is team of player] from {_t::*} if {_s} is false
 		set {_t::*}'s velocity to {_v} * 0.25
 		wait tick
 #跳弾   
@@ -682,7 +699,7 @@ on entity shoot bow:
 	add "control" to scoreboard tags of projectile
 	add projectile to team named "LD_Color_5"
 	set glowing of projectile to on
-	set {_velocity} to shot force*0.5
+	set {_velocity} to shot force*0.2
 	do while projectile is alive:
 		set {_v} to vector in direction of shooter*1.2
 		set projectile's velocity to {_v}*{_velocity}
@@ -697,13 +714,14 @@ projectile hit:
 	while projectile is alive:
 		loop all players in radius 2 meter of projectile:
 			set {_o} to objective with id "ability"
-			score of loop-player for {_o} is not 43
+			loop-player is not shooter
 			if {mode} is 2, 3 or 4:
 				if team of loop-player is not team of shooter:
 					damage loop-player by 1
 					delete projectile
 			else:
 				damage loop-player by 1
+				delete projectile
 		wait tick
 on left click:
 	set {_o} to objective with id "ability"
