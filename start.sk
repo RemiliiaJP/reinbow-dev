@@ -63,6 +63,7 @@ command /end:
 		execute console command "/setblock -105 66 154 minecraft:redstone_block keep"
 		set {game} to false
 		set {mode} to 0
+		execute console command "/undisguise @a"
 
 #ダメージ固定
 on damage:
@@ -526,7 +527,7 @@ on damage:
 		make 12 of dragon_breath at victim with delta vector(1,1,1) with extra 0.2 for all players
 		make 10 of wax_off at victim with delta vector(1,1,1) with extra 1 for all players
 		wait tick
-		stop loop if gamemode of victim is adventure
+		stop loop if gamemode of victim is spectator
 	unequip elytra from victim
 	
 #引力  引き力
@@ -768,3 +769,17 @@ on right click:
 	send "&6体力: &c%heart({_})%" to player
 	send "&6キル数: &b%{kill::%name of {_}%}% &6ヒット数: &b%{hit::%name of {_}%}%" to player
 	send "&6ポーション数: &b%number of potion in {_}'s inventory%個" to player
+	
+on death:
+    set {_o} to objective with id "ability"
+    score of attacker for {_o} is 48
+    execute attacker command "/disguise Player %victim% setNameVisible false"
+    set {_va} to score of victim for {_o}
+    set score of attacker for {_o} to {_va}
+
+on death:
+    set {_o} to objective with id "ability"
+    attacker has scoreboard tag "henso"
+    execute attacker command "/disguise Player %victim% setNameVisible false"
+    set {_va} to score of victim for {_o}
+    set score of attacker for {_o} to {_va}
