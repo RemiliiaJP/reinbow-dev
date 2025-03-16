@@ -336,7 +336,9 @@ on player drop of an bow:
 	score of player for {_o} is 30
 	set {_o} to objective with id "ability_ct"
 	score of player for {_o} >= 240
-	spawn villager at player
+	spawn villager at player:
+		add nbt from "{VillagerData:{profession:""minecraft:nitwit""},Offers:{Recipes:[{}]}}" to nbt of villager
+
 	set {_e} to last spawned villager
 	add {_e} to {a30::%player%::*}
 	add {_e} to {target::%player%::*}
@@ -390,7 +392,7 @@ on left click:
 	score of player for {_o} >= 50
 	remove 50 from score of player for {_o}
 	set {_l} to location of player
-	set {_v} to last spawned villager
+	set {_v} to last element of {a30::%player%::*}
 	{_v} is alive
 	teleport player to {_v}
 	teleport {_v} to {_l}
@@ -403,7 +405,7 @@ on entity shoot bow:
 			add 1 to {_a} 
 		loop-value is alive
 		shoot projectile entity from loop-value at speed bow force
-		
+
 #吸収
 on damage of player:
 	set {_o} to objective with id "ability"
