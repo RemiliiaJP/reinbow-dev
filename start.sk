@@ -142,13 +142,12 @@ on death of player:
 	loop 10*4 time:
 		set {_sphereLocation} to victim offset by spherical vector radius 4, yaw (random integer between -180 and 180), pitch (random integer between -90 and 90)
 		play large explosion on {_sphereLocation}
-	execute console command "scoreboard players add %shooter% tough_arrowhit 1"
+	execute console command "scoreboard players add %shooter% ArrowHit 1"
 
 on damage of player:
 	attacker is not victim
 	attacker is player
 	damage is not 0
-	victim's no damage tick is 0
 	if damage type of damage source = arrow:
 		set {_d} to distance between attacker and victim
 		health of victim - final damage >= 0
