@@ -8,6 +8,7 @@ command /start:
 		clear {tier::*}
 		set {NoTD::*} to 0
 		clear {death::*}
+		command "/scoreboard players reset @a ArrowHit"
 		loop all players:
 			set {tier::%loop-player%} to 1
 			set {hit::%name of loop-player%} to 0
@@ -64,6 +65,7 @@ command /end:
 		clear {kill::*}
 		clear {death::*}
 		execute console command "/setblock -105 66 154 minecraft:redstone_block keep"
+		command "/scoreboard players reset @a ArrowHit"
 		set {game} to false
 		set {mode} to 0
 
@@ -110,7 +112,8 @@ on shoot:
 on drop:
 	if event-item is arrow:
 		cancel event
-	if event-item is bow:
+	if event-item is bow or crossbow:
+		set {_o} to objective with id "ability"
 		set tool of player to event-item
 on death of a player:
 	cancel experience drops
@@ -155,8 +158,7 @@ on damage of player:
 		send title "" with subtitle "&c&lHIT &6➳ &f&l%victim% &6&l(%{_d}%m)" to attacker
 		give tipped arrow named "[%{_d}%m HIT] おめでとう!" to attacker if {_d} >= 100
 		play sound "entity.experience_orb.pickup" to attacker
-		execute console command "scoreboard players add %shooter% tough_arrowhit 1"
-		execute console command "scoreboard players add %shooter% arrow_hit 1"
+		execute console command "scoreboard players add %shooter% ArrowHit 1"
 projectile hit:
 	loop {target::%victim%::*}:
 		if loop-value is shooter:
@@ -173,38 +175,10 @@ on damage:
 on player drop of an bow:
 	set {_o} to objective with id "ability"
 	score of player for {_o} is 14
-	set {_o} to objective with id "ability_ct"
-	score of player for {_o} >= 500
+	ability_use(player, false) is -1
 	loop 4 time:
 		make player shoot arrow at speed 2
 		wait 5 tick
-
-#跳躍 
-on drop:
-	event-item is bow
-	set {_o} to objective with id "ability"
-	score of player for {_o} is 12
-	push player forwards at speed {leap::%player%}*0.2
-	set {leap::%player%} to 0
-every 5 tick:
-	set {_o} to objective with id "ability"
-	loop all players:
-		score of loop-player for {_o} is 12
-		send actionbar "&l跳躍チャージ&f: [%leap(loop-player)%&f]" to loop-player
-every 0.5 second:
-	set {_o} to objective with id "ability"
-	loop all players:
-		score of loop-player for {_o} is 12
-		loop-player is not sneaking
-		add 1 to {leap::%loop-player%}
-		{leap::%loop-player%} >= 10
-		set {leap::%loop-player%} to 10
-function leap(p: player) :: text:
-	loop {leap::%{_p}%} time:
-		add "&a■" to {_t::*}
-	loop 10-{leap::%{_p}%} time:
-		add "&7■" to {_t::*}
-	return join {_t::*}
 
 #必殺
 every 5 tick:
@@ -334,8 +308,7 @@ on damage of player:
 on player drop of an bow:
 	set {_o} to objective with id "ability"
 	score of player for {_o} is 30
-	set {_o} to objective with id "ability_ct"
-	score of player for {_o} >= 240
+	ability_use(player, false) is -1
 	spawn villager at player:
 		add nbt from "{VillagerData:{profession:""minecraft:nitwit""},Offers:{Recipes:[{}]}}" to nbt of villager
 
@@ -390,10 +363,10 @@ on left click:
 	score of player for {_o} is 30
 	set {_o} to objective with id "ability_ct"
 	score of player for {_o} >= 50
-	remove 50 from score of player for {_o}
-	set {_l} to location of player
 	set {_v} to last element of {a30::%player%::*}
 	{_v} is alive
+	remove 50 from score of player for {_o}
+	set {_l} to location of player
 	teleport player to {_v}
 	teleport {_v} to {_l}
 on entity shoot bow:
@@ -465,23 +438,19 @@ every tick:
 		set {_l} to loop-player's level+level progress of loop-player
 		{_l} <= {tier::%loop-player%}
 		increase level progress of loop-player by 0.005
-		send action bar "能力:速射 自動発動" to loop-player
 
 left click:
 	set {_o} to objective with id "ability"
 	gamemode of player is adventure or survival
 	score of player for {_o} is 35
-	set {_o} to objective with id "ability_ct"
-	score of player for {_o} >= 100
+	ability_use(player, false) is -1
 	tool is bow
 	shoot arrow from player
-	set score of player for {_o} to 0
 #召喚
 on player drop of an bow:
 	set {_o} to objective with id "ability"
 	score of player for {_o} is 23
-	set {_o} to objective with id "ability_ct"
-	score of player for {_o} >= 650
+	ability_use(player, false) is -1
 	if {mode} is 1 or 0:
 		if last element of {death::*} is set:
 			set {_o} to objective with id "ability"
@@ -560,8 +529,7 @@ on damage:
 on player drop of an bow:
 	set {_o} to objective with id "ability"    
 	score of player for {_o} is 40
-	set {_o} to objective with id "ability_ct"
-	score of player for {_o} >= 600
+	ability_use(player, false) is -1
 	set {_v} to vector in direction of player
 	if player is not sneaking:
 		set {_s} to false
@@ -579,7 +547,7 @@ on player drop of an bow:
 on projectile hit:
 	projectile has scoreboard tag "bouncy"
 	victim is not set
-	set {_t::*} to players in radius 2 of projectile where [player input is not shooter]
+	set {_t::*} to players in radius 3.5 of projectile where [player input is not shooter]
 	damage {_t::*} by 0.5
 	play sound "entity.slime.jump" for {_t::*}
 	
@@ -764,8 +732,7 @@ on left click:
 on drop of bow:
 	set {_o} to objective with id "ability"
 	score of player for {_o} is 44
-	set {_o} to objective with id "ability_ct"
-	score of player for {_o} >= 600
+	ability_use(player, false) is -1
 	loop all players:
 		team of player is team of loop-player
 		add loop-player to {_t::*}
@@ -823,22 +790,82 @@ on left click:
 	score of player for {_o} is 21
 	tool is bow
 	cancel event
-	if hit block of metadata value "anchor" of player is set:
-		set {_p} to metadata value "anchor" of player
-		clear metadata value "anchor" of player
-		kill {_p}
-		if {_p} is set:
-			set {_l} to location(x coordinate of {_p}, y coordinate of player+1, z coordinate of {_p})
-			push player (vector from player to {_l})
-			stop	
 	level of player >= 1
+	kill metadata value "anchor" of player
 	shoot arrow from player at speed 2
 	play sound "entity.arrow.shoot"
 	set {_p} to last shot projectile
 	add "b" to scoreboard tags of {_p}
 	set glowing of {_p} to true
 	set metadata value "anchor" of player to {_p}
-
+on sneak toggle:
+	tool of player is bow
+	player is not sneaking
+	metadata value "anchor" of player is set
+	set {_p} to metadata value "anchor" of player
+	do while 1 is 1:
+		wait tick
+		hit block of {_p} is set
+		push player (vector from player to {_p}) at speed 0.15
+		push player upward at speed 0.05
+		loop distance between player and {_p} time:
+			set {_v} to normalized vector of {_p}-vector of Player
+			set {_v} to {_v}*loop-counter-2
+			play enchanted hit {_v} player
+		stop loop if players in radius 2 meter of {_p} where [player input is player] is set
+		player is not sneaking
+		stop loop
+	reset player's velocity
+	clear metadata value "anchor" of player
+	kill {_p}
 projectile collide:
 	projectile is  metadata value "anchor" of shooter
 	cancel event
+	wait 2 tick
+	command "disguuid %uuid of projectile% arrow"
+	command "undisguuid %uuid of projectile%"
+function ability_use(p: player, get: boolean=true) :: number:
+	set {_o} to objective with id "ability"
+	if score of {_p} for {_o} is 14:
+		set {_ct} to 500
+	if score of {_p} for {_o} is 19:
+		set {_ct} to 300
+	if score of {_p} for {_o} is 23:
+		set {_ct} to 650
+		
+	if score of {_p} for {_o} is 30:
+		set {_ct} to 240
+	if score of {_p} for {_o} is 35:
+		set {_ct} to 100
+	if score of {_p} for {_o} is 40:
+		set {_ct} to 600
+	if score of {_p} for {_o} is 44:
+		set {_ct} to 600
+
+	set {_o} to objective with id "ability_ct"
+	if {_get} is false:
+		if score of {_p} for {_o} >= {_ct}:
+			set score of {_p} for {_o} to 0
+			return -1
+		else:
+			return 0
+	else if {_get} is true:
+		return {_ct}
+on drop:
+	event-item is bow or crossbow
+	set {_o} to objective with id "ability"
+	score of player for {_o} is 19
+	ability_use(player, false) is -1
+	play sound "item.crossbow.loading_end" to all players at player 
+	set tool of player to crossbow of quick charge 3 if event-item is bow
+	set tool of player to bow if event-item is type of crossbow
+every tick:
+	set {_o} to objective with id "ability"
+	loop all players:
+		score of loop-player for {_o} is 14,19,23,30,35,40 or 44
+		set {_ct} to objective with id "ability_ct"
+		if ability_use(loop-player)-score of loop-player for {_ct} <= 0:
+			set score of loop-player for {_ct} to ability_use(loop-player)
+			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% 使用可能" to loop-player
+		else:
+			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% %ability_use(loop-player)/20-floor(score of loop-player for {_ct}/20)%秒後に使用可能" to loop-player
