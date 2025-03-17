@@ -293,6 +293,7 @@ on death of player:
 	set {_o} to objective with id "ability"
 	score of attacker for {_o} is 26
 	health of attacker is 1 or 0.5
+	wait tick
 	set victim's max health to 5
 	heal attacker by 10 heart
 
@@ -859,6 +860,18 @@ on drop:
 	play sound "item.crossbow.loading_end" to all players at player 
 	set tool of player to crossbow of quick charge 3 if event-item is bow
 	set tool of player to bow if event-item is type of crossbow
+every tick:
+	set {_o} to objective with id "ability"
+	loop all players:
+		if score of loop-player for {_o} is 17 or 26:
+			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% 能力は発動されていない" to loop-player
+		if score of loop-player for {_o} is 38:
+			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% ダメージを受ける時にスニークしていると発動" to loop-player
+		if score of loop-player for {_o} is 21:
+			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% 左クリックでアンカーを飛ばし刺さったあとスニーク長押して発動" to loop-player
+		if score of loop-player for {_o} is 20, 32 or 43:
+			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% 常時発動" to loop-player
+				
 every tick:
 	set {_o} to objective with id "ability"
 	loop all players:
