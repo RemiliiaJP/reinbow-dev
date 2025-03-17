@@ -550,6 +550,7 @@ on projectile hit:
 	set {_t::*} to players in radius 3.5 of projectile where [player input is not shooter]
 	damage {_t::*} by 0.5
 	play sound "entity.slime.jump" for {_t::*}
+	make 3 of item slime at location of projectile
 	
 #縮身	
 on damage:
