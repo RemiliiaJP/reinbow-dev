@@ -31,7 +31,6 @@ every tick:
 			set {_gui} to chest inventory with 6 rows named "&l能力選択"
 			open {_gui} to loop-player
 		name of loop-player's current inventory is "&l能力選択"
-		play sound "block.anvil.land" to loop-player
 		set {_gui} to loop-player's current inventory
 		set slot (integers between 0 and 57) of {_gui} to air
 		loop indices of {sel::*}:

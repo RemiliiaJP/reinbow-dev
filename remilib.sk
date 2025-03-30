@@ -30,4 +30,83 @@ command /send <player> <text>:
 function syncscore():
 	set {_o} to objective with id "info"
 	set score of "$mode" for {_o} to {mode}
-	
+
+on shoot:
+	{game} is true
+	add 1 to {remi::shoot::%shooter%}
+on projectile collide:
+	event-entity is set
+	{game} is true
+	add 1 to {remi::hit::%shooter%}
+command /info <offline player>:
+	trigger:
+		send "HIT:%{remi::hit::%arg%}% SHOT:%{remi::shoot::%arg%}% h/s%{remi::hit::%arg%}/{remi::shoot::%arg%}%" to player
+		send "kdr %{remi::kill::%arg%}/{remi::death::%arg%}%"
+		send "試合に参加した回数: %{remi::game::%arg%}%"
+		send "合計参加時間(死亡後込み): %{remi::playtime::%arg%}%%nl%合計生存時間: %{remi::alivetime::%arg%}%"
+		send "平均生存時間: %{remi::game::%arg%}/{remi::alivetime::%arg%}%"
+command /leaderbord <text>:
+	trigger:
+		loop indices of {remi::%arg%::*}:
+			send "#%loop-counter% %offlineplayer(loop-value)%: %{remi::%arg%::%loop-value%}%"
+on death:
+	{game} is true
+	victim is player
+	add 1 to {remi::death::%victim%} 
+	add 1 to {remi::kill::%attacker%}
+on command "/start":
+	loop all players:
+		add 1 to {remi::game::%loop-player%}
+		add loop-player to {_a::*}
+	wait tick
+	while {game} is true:
+		wait second
+		loop {_a::*}:
+			add 1 to {remi::playtime::%loop-value%}
+			gamemode of loop-value is adventure
+			add 1 to {remi::alivetime::%loop-value%}
+
+on command "/wipe-data":
+	clear {remi::*}
+load:
+	set {r} to 255
+	set {g} to 0
+	set {b} to 0
+function rainbowText(text: string) :: text:
+	set {_result} to ""
+	loop split {_text} by "":
+		set {_t} to text component from loop-value
+		set color format of {_t} to rgb({r}, {g}, {b})
+		add {_t} to {_result::*}
+		wait tick
+	set {_result} to "%{r}% %{g}% %{b}%"
+	set {fb::*} to {_result::*}
+
+every tick:
+	if abs({r})*-1 is {r}:
+		set {r} to 0	
+	if abs({g})*-1 is {g}:
+		set {g} to 0
+	if abs({b})*-1 is {b}:
+		set {b} to 0
+	if {b} is 0:
+		if {g} is 255:
+			add -1 to {r}
+		else if {r} is 255:
+			add 1 to {g}
+		else if {g} is not 255:
+			add 1 to {r}
+	if {r} is 0:
+		if {b} is 255:
+			add -1 to {g}
+		else if {g} is 255:
+			add 1 to {b}
+		else if {b} is not 255:
+			add 1 to {g}
+	if {g} is 0:
+		if {r} is 255:
+			add -1 to {b}
+		else if {b} is 255:
+			add 1 to {r}
+		else if {r} is not 255:
+			add 1 to {b}

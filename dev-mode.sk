@@ -1,13 +1,13 @@
-every 10 tick:
+every 1 tick:
+	set {_o} to objective with id "ability_ct"
+	set {_o2} to objective with id "ability2_ct"
 	loop all players:
-		send action bar "mode: %{mode}% game: %{game}% cool: %score of loop-player for {_o}%" to loop-player
+		set line 8 of fastboard of loop-player to "mode: %{mode}% game: %{game}%"
+		set line 9 of fastboard of loop-player to "ct: %score of loop-player for {_o}% ct: %score of loop-player for {_o2}% %{safe}%"
 on command "/start":
-	command "/setblock -29 268 9 minecraft:redstone_block keep"
-	wait 5 tick
-	loop all players:
-		set slot 0 of loop-player to bow
+	command "/setblock -63 2 69 minecraft:redstone_block keep"
 on command "/end":					
-	command "/setblock -29 268 7 minecraft:redstone_block keep"
+	command "/setblock -63 2 67 minecraft:redstone_block keep"
 on death:
 	set gamemode of victim to spectator
 command /sandback:
@@ -15,24 +15,62 @@ command /sandback:
 		spawn stray at player:
 			set ai of stray to false
 			set {_s} to stray
-		command "/disguuid %uuid of stray% Player miyabichan0 setArrowsSticking 0 setHealth %health of stray% setName sandbag setTablistName sandbag"
+			command "/disguuid %uuid of stray% Player miyabichan0 setArrowsSticking 0 setHealth %health of stray% setName sandbag setTablistName sandbag"
 		do while {_s} is alive:
 			wait tick
 			loop all players in radius 1.5 meter around {_s}:
 				set {_d} to damage source from arrow directly by {_s}
-				force loop-player to attack {_s}
+				force {_s} to attack loop-player
 on damage of stray:
-    damage is not 0
-    if damage type of damage source = arrow:
-        set {_d} to distance between attacker and victim
-        command "/disguuid %uuid of victim% Player miyabichan0 setArrowsSticking 0 setHealth %health of victim% setName sandbag setTablistName sandbag"
-        if victim's health is 1 ,0.5 or 0:
-            heal victim by 5 
-        add 0.25 to {tier::%attacker%}
-        add 1 to {hit::%name of attacker%}
-        send "&l[&c&lsandbag&f&l] %attacker% &e&l≫&6&l≫&c&l≫&4&l≫ &f&l sandbag &7(%{_d}%m)" to attacker
-        send title "" with subtitle "&c&hit &6➳ &f&lsandbag &6&l(%{_d}%m)" to attacker
-        give tipped arrow named "[%{_d}%m HIT] おめでとう!" to attacker if {_d} >= 100
-        play sound "entity.experience_orb.pickup" to attacker
-        execute console command "scoreboard players add %shooter% tough_arrowhit 1"
-        execute console command "scoreboard players add %shooter% arrow_hit 1"
+	damage is not 0
+	if damage type of damage source = arrow:
+		set {_d} to distance between attacker and victim
+		health of victim - final damage >= 0
+		set {_t} to objective with id "tier"
+		add 0.25 to score of attacker for {_t}
+		add 1 to {hit::%name of attacker%}
+		send "&l[&c&lHIT&f&l] %attacker% &e&l≫&6&l≫&c&l≫&4&l≫ &f&l%victim% &7(%{_d}%m)" to all players
+		send title "" with subtitle "&c&lHIT &6➳ &f&l%victim% &6&l(%{_d}%m)" to attacker
+		give tipped arrow named "[%{_d}%m HIT] おめでとう!" to attacker if {_d} >= 100
+		play sound "entity.experience_orb.pickup" to attacker
+		execute console command "scoreboard players add %shooter% ArrowHit 1"
+		execute console command "scoreboard players add %shooter% tier 1"
+		
+command /mevsme:
+    trigger:
+        teleport player at location(15, 250, 0)
+        set pitch of player to 0
+        set yaw of player to 90
+        give bow of infinity to player
+        give arrow to player
+        heal player
+        spawn stray at location(-15, 250, 0)
+        set {_e} to last spawned entity
+#ww        set {_e}'s ai to false
+        execute console command "/disguuid %uuid of {_e}% Player %name of player% setNameVisible false setItemInMainHand bow setSprinting true"
+
+        loop 1 time:
+            add locc(player) to {_l::*}
+            add yaw of player to {_y::*}
+            add pitch of player to {_p::*}
+            wait tick
+        while {_e} is alive:
+            add locc(player) to {_l::*}
+            add yaw of player+180 to {_y::*}
+            add pitch of player to {_p::*}
+            wait 1 tick	
+
+            teleport {_e} to {_l::%loop-counter%}
+            set pitch of {_e} to {_p::%loop-counter%}
+            set yaw of {_e} to {_y::%loop-counter%}
+            if gamemode of player is spectator:
+                kill {_e}
+        remove {_e} from {a30::%player%::*}
+on entity shoot bow:
+	shooter is player
+	loop all strays:
+		wait 1 tick
+		loop-value is alive
+		shoot projectile entity from loop-value at speed bow force
+function locc(l: location) :: location:
+    return location(x coordinate of {_l}*-1, y coordinate of {_l}, z coordinate of {_l}*-1 )

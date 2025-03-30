@@ -1,0 +1,43 @@
+command /april:
+	permission: op
+	trigger:
+		set gamemode of all players to adventure
+		set {mode} to 1
+		command "/start"
+		wait 3 tick
+		loop indices of {gui::*}: 
+			add loop-value to {_c::*}
+		set {_o} to objective with id "ability"
+		loop all players:
+			set {_} to random element of {_c::*}
+			set score of loop-player for {_o} to {_} parsed as number
+			remove {_} from {_c::*}
+		set {_o} to objective with id "ability2"
+		set {_ct} to objective with id "ability2_ct"
+		loop all players:
+			set {_} to random element of {_c::*}
+			set score of loop-player for {_o} to {_} parsed as number
+			remove {_} from {_c::*}
+			set score of loop-player for {_ct} to 0
+			set {_o4} to objective with id "ability2_ct"
+			set score of loop-player for {_o4} to 0
+			set slot 4 of loop-player to lantern named "&6=== 能力切り替え ==="
+		
+drop:
+    name of event-item is "&6=== 能力切り替え ==="
+    give soul lantern named "&6=== 能力切り替え ===" to player if event-item is lantern
+    give lantern named "&6=== 能力切り替え ===" to player if event-item is soul lantern
+    set {_o1} to objective with id "ability"
+    set {_o2} to objective with id "ability2"
+    set {_o3} to objective with id "ability_ct"
+    set {_o4} to objective with id "ability2_ct"
+    set {_a1} to score of player for {_o1}
+    set {_a2} to score of player for {_o2}
+    set {_a3} to score of player for {_o3}
+    set {_a4} to score of player for {_o4}
+    set score of player for {_o1} to {_a2}
+    set score of player for {_o2} to {_a1}
+    set score of player for {_o3} to {_a4}
+    set score of player for {_o4} to {_a3}
+
+    

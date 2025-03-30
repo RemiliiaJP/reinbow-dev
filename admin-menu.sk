@@ -1,5 +1,5 @@
 right click:
-	tool is nether star
+	tool is nether star named "管理者メニュー"
 	admin_menu(player)
 every 5 tick:
 	{game} is false
@@ -14,6 +14,8 @@ function admin_menu(p: player):
 	set slot 2 of {_gui} to tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/solo" if {menu.mode} is 1
 	set slot 2 of {_gui} to spectral arrow named "ゲームモード選択" with lore "モード: duo" if {menu.mode} is 2
 	set slot 2 of {_gui} to stick named "ゲームモード選択" with lore "モード: 自由選択/duo" if {menu.mode} is 3
+	set slot 2 of {_gui} to red banner named "ゲームモード選択" with lore "モード: ２チーム" if {menu.mode} is 4
+	set slot 2 of {_gui} to 2 of bow named "ゲームモード選択" with lore "モード: エイプリルフール" if {menu.mode} is 5
 	set slot 8 of {_gui} to chest named "能力GUIを開く"
 	open {_gui} to {_p}
 on load:
@@ -31,25 +33,15 @@ on inventory click:
 			player command "start-duo"
 		if {menu.mode} is 3:
 			player command "select-duo"
-	if index of event-slot is 2:
-		if {menu.mode} is 0:
-			set {menu.mode} to 1
-			send "能力自由選択/soloに設定されました" to all players
-			set slot 2 of event-inventory to tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/solo"
-		else if {menu.mode} is 1:
-			set {menu.mode} to 2
-			send "duoモードに設定されました" to all players
-			set slot 2 of event-inventory to spectral arrow named "ゲームモード選択" with lore "モード: duo"
-		else if {menu.mode} is 2:
-			set {menu.mode} to 3
-			send "能力自由選択/duoに設定されました" to all players
-			set slot 2 of event-inventory to stick named "ゲームモード選択" with lore "モード: 自由選択/duo"
-		else if {menu.mode} is 3:
-			set {menu.mode} to 0
-			send "soloに設定されました" to all players
-			set slot 2 of event-inventory to arrow named "ゲームモード選択" with lore "モード: solo"
+		if {menu.mode} is 4:
+			player command "halfandhalf"
+		if {menu.mode} is 5:
+			player command "april"
 		
-		
+	else if index of event-slot is 2:
+		add 1 to {menu.mode}
+		set {menu.mode} to 0 if {menu.mode} > 5
+		admin_menu(player)
 	if index of event-slot is 8:
 		player command "/gui"
 						

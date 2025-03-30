@@ -1,0 +1,37 @@
+on drop:
+    event-item is fire charge
+    delete event-dropped item
+    shoot snowball from player at speed 1 upward
+    set {_a} to last shot snowball
+    teleport {_a} 100 meter above player
+    set {_v} to vector in direction of player
+    push {_a} {_v}*0.5
+    spawn item display
+    set {_i} to last spawned entity
+    set item of {_i} to magma block
+    set display scale of {_i} to vector 8, 8, 8
+    while {_a} is alive:
+        teleport {_i} to {_a}
+        wait tick
+        play sound "entity.blaze.shoot" at {_a}
+        loop 180 times:
+            set {_v} to normalized random vector
+            set {_v} to {_v}*1.5
+            make 1 of flame {_v} {_a} with extra 1
+            make 1 of explosion {_v} {_a} with extra 0.1
+        add abs(y of {_a}'s velocity)*-1*0.05 to y of {_a}'s velocity
+    create safe explosion of force 10 at {_i}
+    loop 360 times:
+        set {_v} to normalized random vector
+        set {_v} to {_v}*15
+        make 1 of explosion_emitter {_v} {_a} with extra 0.1
+    kill {_i}
+
+on drop:
+    event-item is potato
+    delete event-dropped item
+    loop 15 time:
+        set {_v} to vector in direction of player
+        add random vector*0.1 to {_v} 
+        shoot arrow from player at speed 2 {_v}
+        push player backwards at speed 2

@@ -58,7 +58,7 @@ inventory click:
 	cancel event
 player drop:
 	{game} is true
-	event-item is not bow or crossbow
+	event-item is not bow, crossbow, lantern or soul lantern
 	if {mode} >= 2:
 		event-item is potion
 		stop
@@ -88,22 +88,30 @@ on sneak toggle:
 		stop
 on sneak toggle:
 	{mode} >= 2
+	tool is beacon
+	player is not sneaking
+	send "&b蘇生中"
 	do while player is sneaking:
 		wait tick
+		effect(player, glowing, 1 , 2 tick)
 		if tool is not beacon:
 			stop loop
 		play sound "wither_skeleton" with volume 0.2 and pitch loop-counter*0.01
-		loop-counter is 200
+		loop-counter is 300
 		set {_tm} to random element of teams(player) where [gamemode of player input is spectator]
 		set {_tm}'s gamemode to adventure
 		give bow to {_tm}
-		send "&b&l%{_tm}%が蘇生されました" to all players
+		send "&l[&b&lREVIVE&f] &9▶▶▶▶&b&l%{_tm}%" to all players
 		play sound "entity.wither.ambient" to all players
 		remove every {_tm} from {death::*}
 		teleport {_tm} to player
+		set slot 6 of {_tm} to compass
+		set slot 7 of {_tm} to spyglass
+		set slot (integers between 9 and 26) of {_tm} to black stained glass pane named " "
 		set tool to air
 		stop
 left click:
+	{mode} >= 2
 	tool is spyglass
 	kill {pin::%player%}
 	kill {pin::%player%::*}

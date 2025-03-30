@@ -3,31 +3,38 @@ command /start:
 	permission: skript.admin
 	trigger:
 		execute console command "/setblock -105 66 156 minecraft:redstone_block keep"
-		set {game} to true
 		disallow flight to all players
-		clear {tier::*}
 		set {NoTD::*} to 0
 		clear {death::*}
 		command "/scoreboard players reset @a ArrowHit"
+		command "/scoreboard players set @a tier 0"
+		set {_t} to objective with id "tier"
 		loop all players:
-			set {tier::%loop-player%} to 1
 			set {hit::%name of loop-player%} to 0
 			set {kill::%name of loop-player%} to 0
 		set all players's level to 0
 		set level progress of all players to 0
-		set {safe} to 240
-		wait 210 second
-		set {safe} to 160
-		wait 150 second
-		set {safe} to 80
-		wait 150 second
-		set {safe} to 40
-		wait 120 second
-		set {safe} to 15
+		set {safe} to 10000
+		wait 6 tick
+		loop 15901 time:
+			wait tick
+			stop loop if {game} is false
+			if loop-counter is 45*20:
+				set {safe} to 120
+			if loop-counter is (90+120)*20:
+				set {safe} to 80
+			if loop-counter is (120+240)*20:
+				set {safe} to 40
+			if loop-counter is (240+240+30)*20:
+				set {safe} to 20
+			if loop-counter is (240+240+150)*20:
+				set {safe} to 15/2
+
 on command "/start":
 	syncscore()
 	player command "glow reset"
 	wait 5 tick
+	set {game} to true
 	set {_o} to objective with id "ability"
 	loop indices of {gui::*}: 
 		add loop-value to {_c::*}
@@ -46,6 +53,8 @@ on command "/start":
 			set slot 6 of loop-player to compass
 			set slot 7 of loop-player to spyglass
 			set {shield::%loop-player%} to 5 if score of loop-player for {_o} is 42
+			send name of {gui::%score of loop-player for {_o}%} to loop-player
+			send {gui::%score of loop-player for {_o}%}'s lore to loop-player
 command /end:
 	permission: skript.admin
 	trigger:
@@ -80,6 +89,9 @@ on damage:
 		set damage to 0.5
 	if damage was caused by entity explosion:
 		set damage to 1
+	if damage was caused by block explosion:
+		set damage to 1
+		
 	if damage was caused by hitting wall while flying:
 		set damage to 0
 	if damage was caused by fall:
@@ -98,8 +110,6 @@ on damage of player:
 	projectile is arrow 
 	delete projectile
 
-
-			
 
 inventory click:
 	cancel event if event-slot is slot 8 of player's inventory 
@@ -125,6 +135,9 @@ on death of player:
 	if scoreboard tags of victim contains "sitai":
 		remove "sitai" from scoreboard tags of victim
 		stop
+	if victim contains {death::*}:
+		cancel event
+		stop
 	add name of victim to {death::*} if victim do not contain {death::*}
 	if attacker is not player:
 		send "&l[&4&lDEATH&f&l] &e≫&6&l≫&c&l≫&4&l≫ &4&l%victim%" to all players
@@ -133,7 +146,8 @@ on death of player:
 			set {_sphereLocation} to victim offset by spherical vector radius 4, yaw (random integer between -180 and 180), pitch (random integer between -90 and 90)
 			play large explosion on {_sphereLocation}
 	attacker is player
-	add 1 to {tier::%attacker%}
+	command "/scoreboard players add %name of attacker% tier 4"
+
 	set {_d} to distance between attacker and victim
 	add 1 to {kill::%name of attacker%}
 	send "&l[&4&lKILL&f&l] %attacker% &e≫&6&l≫&c&l≫&4&l≫ &4&l%victim% &7(%{_d}%m)" to all players
@@ -151,13 +165,13 @@ on damage of player:
 	if damage type of damage source = arrow:
 		set {_d} to distance between attacker and victim
 		health of victim - final damage >= 0
-		add 0.25 to {tier::%attacker%}
+		command "/scoreboard players add %attacker% tier 1"
 		add 1 to {hit::%name of attacker%}
 		send "&l[&c&lHIT&f&l] %attacker% &e&l≫&6&l≫&c&l≫&4&l≫ &f&l%victim% &7(%{_d}%m)" to all players
 		send title "" with subtitle "&c&lHIT &6➳ &f&l%victim% &6&l(%{_d}%m)" to attacker
 		give tipped arrow named "[%{_d}%m HIT] おめでとう!" to attacker if {_d} >= 100
 		play sound "entity.experience_orb.pickup" to attacker
-		execute console command "scoreboard players add %shooter% ArrowHit 1"
+		execute console command "scoreboard players add %attacker% ArrowHit 1"
 projectile hit:
 	loop {target::%victim%::*}:
 		if loop-value is shooter:
@@ -180,16 +194,14 @@ on player drop of an bow:
 		wait 5 tick
 
 #必殺
-every 5 tick:
+every tick:
 	loop all players:
 		set {_o} to objective with id "ability"
 		score of loop-player for {_o} is 17
 		loop all players:
 			if health of loop-player-2 > 1:
 				command "glow unset %loop-player-2% %loop-player-1%"
-				stop
 			set {_d} to distance between loop-player-1 and loop-player-2
-			{_d} is smaller than 160
 			loop-player-2 is not loop-player-1
 			gamemode of loop-player-2 is not spectator
 			health of loop-player-2 <= 1
@@ -197,14 +209,15 @@ every 5 tick:
 			send action bar "能力:必殺 自動発動 %loop-player-2%(%{_d}%m)が瀕死です" to loop-player-1
 			add potion effect of speed of tier 8 without particles for 6 tick to potion effects of loop-player-1 if {_d} is smaller than 24
 			set {_l} to loop-player-1's level+level progress of loop-player-1
-			{_l} <= {tier::%loop-player-1%}
-			increase level progress of loop-player-1 by 0.01
+			set {_t} to objective with id "tier"
+			{_l} <= score of loop-player-1 for {_t}
+			increase level progress of loop-player-1 by 0.02
 		
 
 on death of player:
 	set {_o} to objective with id "ability"
 	score of attacker for {_o} is 17
-	heal attacker by 2 heart
+	heal attacker by 3 heart
 
 #狙撃
 function set_projectile_speed(e: entity, s: number):
@@ -215,7 +228,8 @@ on shoot:
 	shooter is sneaking
 #	reset velocity of projectile
 	add "gravity" to scoreboard tags of projectile
-	set {_ray} to ray trace from shooter with max distance 320 with ray size 0.5 while ignoring passable blocks while ignoring all players where [gamemode of player input is not survival or adventure] and all entities where [distance between shooter and entity input <= 15]
+	set {_ray} to ray trace from shooter with max distance 320 with ray size 0.5 while ignoring passable blocks while ignoring all players where [gamemode of player input is not survival or adventure] and all entities where [distance between shooter and entity input <= 15] if {mode} is 0 or 1
+	set {_ray} to ray trace from shooter with max distance 320 with ray size 0.5 while ignoring passable blocks while ignoring all players where [gamemode of player input is not survival or adventure] and all entities where [distance between shooter and entity input <= 15] and teams(shooter) if {mode} is 2 , 3 or 4
 	set {_a} to projectile
 	play sound "entity.generic.explode" to shooter if {_ray} is set
 	set {_d} to damage source from arrow directly by shooter
@@ -234,7 +248,8 @@ on shoot:
 on death of player:
 	set {_o} to objective with id "ability"
 	score of attacker for {_o} is 25
-	give {tier::%victim%} of tipped arrow to attacker
+	set {_t} to objective with id "tier"
+	give score of victim for {_t}/4 of tipped arrow to attacker
 	heal attacker by 5 heart
 on damage of player:
 	set {_o} to objective with id "ability"
@@ -252,15 +267,7 @@ on damage of player:
 
 
 #背水
-every 5 tick:
-	loop all players:
-		set {_o} to objective with id "ability"
-		score of loop-player for {_o} is 26
-		gamemode of loop-player is not spectator
-		health of loop-player is 1 or 0.5
-		loop-player's max health is 5
-		send action bar "能力:背水 発動中" to loop-player
-		add potion effect of speed of tier 8 without particles for 6 tick to potion effects of loop-player
+
 #背水の矢の補充速度を2倍にしたいやつ
 every tick:
 	set {_o} to objective with id "ability"
@@ -269,26 +276,23 @@ every tick:
 		score of loop-player for {_o} is 26
 		health of loop-player < 1.5
 		loop-player's max health is 5
+		send action bar "能力:背水 発動中" to loop-player
+		add potion effect of speed of tier 8 without particles for 6 tick to potion effects of loop-player
 		set {_l} to loop-player's level+level progress of loop-player
-		{_l} <= {tier::%loop-player%}
+		set {_t} to objective with id "tier"
+		{_l} <= score of loop-player for {_t}/4
 		increase level progress of loop-player by 0.01
 on damage:
 	set {_o} to objective with id "ability"
 	score of victim for {_o} is 26
 	health of victim-final damage <= 1
 	health of victim-final damage >= 0
-	set {_a} to (attacker's health-health of victim-final damage)*2
-	absorption amount of victim is 0
-	set victim's max absorption attribute to {_a}*2
-	effect(victim, absorption, 128)
 	do while attacker's gamemode is adventure or survival:
 		wait 5 tick
 		command "/glow %attacker% %victim% blue NEVER ALWAYS"
 		stop loop if health of victim >= 1.5
 		stop loop if {game} is not true
 	command "/glow unset %attacker% %victim%"
-	set victim's max absorption attribute to 0
-	set victim's max health to 0.5
 on death of player:
 	set {_o} to objective with id "ability"
 	score of attacker for {_o} is 26
@@ -300,7 +304,6 @@ on death of player:
 
 #ボーダー等でアーマー壊れてくれ
 on damage of player:
-	attacker is not player
 	damage victim's chestplate by 1 
 
 
@@ -383,9 +386,10 @@ on entity shoot bow:
 on damage of player:
 	set {_o} to objective with id "ability"
 	score of victim for {_o} is 32
+	set {_t} to objective with id "tier"
 	if damage type of damage source = arrow:
 		victim's health is not 1 ,0.5 or 0
-		add 0.5 to {tier::%victim%}
+		add 0.5 to score of victim for {_t}
 		give tipped arrow to victim
 
 #解放
@@ -396,13 +400,15 @@ on damage of player:
 	if damage type of damage source = arrow:
 		victim's health is not 1 ,0.5 or 0
 		add 0.25 to {NoTD::%victim%}
+		{NoTD::%victim%} >= 1
+		set {NoTD::%victim%} to 1
 
 on player drop of an bow:
 	{NoTD::%player%} is not 0
 	set {_o} to objective with id "ability"
 	score of player for {_o} is 33
 	play sound "minecraft:block.beacon.deactivate" with pitch 2 at player to all players
-	loop all players:
+	loop all players in radius 5 meter around player:
 		loop-player is not player
 		loop-player's gamemode is adventure
 		if {mode} is 2, 3 or 4:
@@ -418,13 +424,13 @@ every 5 tick:
 		score of loop-player for {_o} is 33
 		send action bar "能力:解放 (現在%{NoTD::%loop-player%}*4%チャージ %{NoTD::%loop-player%}*1%ダメージ)" to loop-player
 		
-#閃光
+#閃光 ->探知
 on damage of player:
 	gamemode of victim is adventure or survival
 	gamemode of attacker is adventure or survival
 	attacker is not victim
 	set {_o} to objective with id "ability"
-	score of attacker for {_o} is 34
+	score of attacker for {_o} is 5
 	if event-projectile is arrow:
 		victim's health is not 1 ,0.5 or 0
 		add potion effect of glowing of tier 1 without particles for 80 tick to potion effects of victim
@@ -436,16 +442,19 @@ every tick:
 		gamemode of loop-player is adventure or survival
 		score of loop-player for {_o} is 35
 		set {_l} to loop-player's level+level progress of loop-player
-		{_l} <= {tier::%loop-player%}
-		increase level progress of loop-player by 0.005
+		set {_t} to objective with id "tier"
+		{_l} <= score of loop-player for {_t}/4
+		increase level progress of loop-player by 0.01
 
 left click:
+	tool is bow
 	set {_o} to objective with id "ability"
 	gamemode of player is adventure or survival
 	score of player for {_o} is 35
 	ability_use(player, false) is -1
-	tool is bow
+	set {_l} to level of player
 	shoot arrow from player
+	set level of player to {_l}
 #召喚
 on player drop of an bow:
 	set {_o} to objective with id "ability"
@@ -499,6 +508,7 @@ on entity target:
 		if loop-value is event-entity:
 			cancel event
 	set {_a} to name of event-entity parsed as "&b%player%のしもべ"
+	{mode} is not 0 or 1
 	if team of target is team of {_a}:
 		cancel event
 
@@ -574,47 +584,57 @@ every tick:
 			set {_t} to team of loop-value
 	if {_al} is 1:
 		{game} is true
-		command "/end"
-		{mode} >= 2
-		command "/duo-end"                
+		if {mode} >= 2:
+			command "/duo-end"  
+		else:
+			command "/end"
+	rainbowText("れいんボウ")              
 	loop all players:
-		set title of fastboard of loop-player to "&bれいんボウ"
-		set line 1 of fastboard of loop-player to "&bPlayer: %name of loop-player%"
+		set title of fastboard of loop-player to join {fb::*}
+		set line 1 of fastboard of loop-player to "&bPlayer: &e%name of loop-player%"
 		set line 2 of fastboard of loop-player to "&b - 生存人数 &6%{_al}%&b/%size of all players%"
 		if {game} is true:
 			set {_x} to x-coordinate of loop-player
 			set {_z} to z-coordinate of loop-player
-			set {_A} to location({_x}, 0, {_z})
 			set {_d} to random element of text displays where [entity input do not have score board tag "pin"]
-			set {_x} to x-coordinate of {_d}
-			set {_z} to z-coordinate of {_d}
-			set {_B} to location({_x}, 0, {_z})
-			if {_A} is within {safe} blocks around {_B}:
+			set {_xb} to x-coordinate of {_d}
+			set {_zb} to z-coordinate of {_d}
+			add abs({_xb}-{_x}) to {_s::*}
+			add abs({_zb}-{_z}) to {_s::*}
+			set {_s::*} to sorted {_s::*}
+			if last element of {_s::*} < {safe}:
 				set line 3 of fastboard of loop-player to "&b - セーフエリア:[&6内&b]"
 			else:
 				set line 3 of fastboard of loop-player to "&b - セーフエリア:[&c外&b]"
-		set line 4 of fastboard of loop-player to "&b - 能力: &6%name of {gui::%score of loop-player for {_o}%}%" 
-		set line 4 of fastboard of loop-player to "&b - 能力: &6闇鍋 (%name of {gui::%score of loop-player for {_o}%}%)" if loop-player has scoreboard tag "yaminabe" 
+
+		set {_o2} to objective with id "ability2"
+		if score of loop-player for {_o2} is set:
+			set line 4 of fastboard of loop-player to "&b - 能力: &6&l%name of {gui::%score of loop-player for {_o}%}% &o&6裏能力: (%name of {gui::%score of loop-player for {_o2}%}%)" 
+			set line 4 of fastboard of loop-player to "&b - 能力: &6闇鍋 (&l%name of {gui::%score of loop-player for {_o}%}%) &o&6裏能力: (%name of {gui::%score of loop-player for {_o2}%}%)" if loop-player has scoreboard tag "yaminabe" 
+		else:
+			set line 4 of fastboard of loop-player to "&b - 能力: &6&l%name of {gui::%score of loop-player for {_o}%}% " 
+			set line 4 of fastboard of loop-player to "&b - 能力: &6闇鍋 (%name of {gui::%score of loop-player for {_o}%}%)" if loop-player has scoreboard tag "yaminabe" 
 #コンパス
 		loop all text displays:
 			loop-entity-2 do not have score board tag "pin"
 			set loop-player-1's compass target to loop-entity-2
 #矢の数
+		set {_t} to objective with id "tier"
 		gamemode of loop-player is not creative
 		if level of loop-player is 0:
 			set slot 8 of loop-player to barrier
 		else:
-			set slot 8 of loop-player to floor(level of loop-player) of arrow
+			set {_a} to floor(level of loop-player)
+			set slot 8 of loop-player to {_a} of arrow
 		if gamemode of loop-player is not spectator:
 			set {_l} to loop-player's level+level progress of loop-player 
 			
-			{_l} <= {tier::%loop-player%}
+			{_l} <= score of loop-player for {_t}/4+1
 			increase level progress of loop-player by 0.01
 			set {_l} to loop-player's level+level progress of loop-player 
 			if {_l} > 3:
 				set loop-players's level to 3
 				set level progress of loop-player to 0
-
 #大盾
 on sneak toggle:
 	player is not sneaking
@@ -696,9 +716,9 @@ on entity shoot bow:
 	add "control" to scoreboard tags of projectile
 	add projectile to team named "LD_Color_5"
 	set glowing of projectile to on
-	set {_velocity} to shot force*0.2
+	set {_velocity} to shot force*0.05
 	do while projectile is alive:
-		set {_v} to vector in direction of shooter*1.2
+		set {_v} to vector in direction of shooter*5
 		set projectile's velocity to {_v}*{_velocity}
 		make 5 of witch at projectile with extra 0.1
 		wait tick
@@ -717,7 +737,7 @@ projectile hit:
 					damage loop-player by 1
 					delete projectile
 			else:
-				damage loop-player by 1
+				damage loop-player by 0.5
 				delete projectile
 		wait tick
 on left click:
@@ -753,8 +773,7 @@ on drop of bow:
 		wait tick if random integer between 2 to 0 is 0
 on right click:
 	gamemode of player is spectator
-	event-entity is player
-	targeted entity of player is set
+	gamemode of targeted entity of player is adventure
 	set {_} to targeted entity of player
 	set {_o} to objective with id "ability"
 	send "&b%name of {_}%" to player
@@ -768,63 +787,81 @@ on right click:
 	
 on death:
     set {_o} to objective with id "ability"
-    score of attacker for {_o} is 48
-    execute attacker command "/disguise Player %victim% setNameVisible false"
-    set {_va} to score of victim for {_o}
-    set score of attacker for {_o} to {_va}
-
-on death:
-    set {_o} to objective with id "ability"
     attacker has scoreboard tag "henso"
+    loop indices of {target::*}:
+        {target::%loop-value%::*} contains victim
+        stop
     execute attacker command "/disguise Player %victim% setNameVisible false"
     set {_va} to score of victim for {_o}
     set score of attacker for {_o} to {_va}
 on rightclick:
 	gamemode of player is adventure
 	event-entity is interaction
+	{mode} is 2, 3 or 4
 	loop teams(player):
 		gamemode of loop-value is spectator
 		give beacon named "手に持ってスニークで蘇生" to player
 		stop
-on left click:
+
+on sneak toggle:
+	tool of player is bow
+	player is not sneaking
+	gamemode of player is adventure
 	set {_o} to objective with id "ability"
 	score of player for {_o} is 21
 	tool is bow
-	cancel event
 	level of player >= 1
+	metadata value "anchor" of player is not alive
 	kill metadata value "anchor" of player
-	shoot arrow from player at speed 2
+	shoot arrow from player at speed 10
 	play sound "entity.arrow.shoot"
 	set {_p} to last shot projectile
 	add "b" to scoreboard tags of {_p}
 	set glowing of {_p} to true
 	set metadata value "anchor" of player to {_p}
-on sneak toggle:
-	tool of player is bow
-	player is not sneaking
-	metadata value "anchor" of player is set
-	set {_p} to metadata value "anchor" of player
-	do while 1 is 1:
+	wait tick
+	while hit block of {_p} is not set:
+		add abs(y of {_p}'s velocity)*-1*0.2 to y of {_p}'s velocity
+		add (x of {_p}'s velocity)*-1*0.15 to x of {_p}'s velocity
+		add (z of {_p}'s velocity)*-1*0.15 to z of {_p}'s velocity
 		wait tick
-		hit block of {_p} is set
-		push player (vector from player to {_p}) at speed 0.15
+	do while player is not sneaking:
+		wait tick
+	do while player is sneaking:
+		wait tick	
+		play sound "item.crossbow.quick_charge_3" to player
+		set {_p} to metadata value "anchor" of player
+		push player (vector from player to {_p}) at speed 0.1
 		push player upward at speed 0.05
 		loop distance between player and {_p} time:
 			set {_v} to normalized vector of {_p}-vector of Player
 			set {_v} to {_v}*loop-counter-2
 			play enchanted hit {_v} player
-		stop loop if players in radius 2 meter of {_p} where [player input is player] is set
-		player is not sneaking
-		stop loop
+		if players in radius 2 meter of {_p} where [player input is player] is set:
+			stop loop
+		if {_p} is not alive:
+			stop loop
+		if loop-counter >= 120:
+			stop loop	
+		if tool of player is not bow:
+			stop loop
+		if player is not sneaking:
+			stop loop
 	reset player's velocity
+	play sound "entity.wither.shoot" with pitch 2
+	push player (vector from player to {_p}) at speed 1
+	effect(player, levitation, 1 , 0.7 second)
 	clear metadata value "anchor" of player
 	kill {_p}
-projectile collide:
-	projectile is  metadata value "anchor" of shooter
-	cancel event
-	wait 2 tick
-	command "disguuid %uuid of projectile% arrow"
-	command "undisguuid %uuid of projectile%"
+projectile hit:
+	projectile is metadata value "anchor" of shooter
+	if victim is set:
+		cancel event
+	else:
+		play sound "entity.ender_dragon.hurt" to shooter
+		wait 2 tick
+		command "disguuid %uuid of projectile% arrow"
+		command "undisguuid %uuid of projectile%"
 function ability_use(p: player, get: boolean=true) :: number:
 	set {_o} to objective with id "ability"
 	if score of {_p} for {_o} is 14:
@@ -835,7 +872,10 @@ function ability_use(p: player, get: boolean=true) :: number:
 		set {_ct} to 650
 		
 	if score of {_p} for {_o} is 30:
-		set {_ct} to 240
+		set {_ct} to 350
+	if score of {_p} for {_o} is 32:
+		set {_ct} to 800
+		
 	if score of {_p} for {_o} is 35:
 		set {_ct} to 100
 	if score of {_p} for {_o} is 40:
@@ -858,27 +898,58 @@ on drop:
 	score of player for {_o} is 19
 	ability_use(player, false) is -1
 	play sound "item.crossbow.loading_end" to all players at player 
-	set tool of player to crossbow of quick charge 3 if event-item is bow
-	set tool of player to bow if event-item is type of crossbow
+	set tool of player to unbreakable crossbow of quick charge 3 if event-item is bow
+	set tool of player to unbreakable bow if event-item is type of crossbow
+	add 1 to level of player
+	if level progress of player+ level of player >= 3:
+		set level of player to 3
+
+on damage:
+	set {_o} to objective with id "ability"
+	score of victim for {_o} is 32
+	ability_use(victim, false) is -1
+	heal victim by 0.5	
 every tick:
 	set {_o} to objective with id "ability"
 	loop all players:
-		if score of loop-player for {_o} is 17 or 26:
-			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% 能力は発動されていない" to loop-player
+		set slot 13 of loop-player to {gui::%score of loop-player for {_o}%} if {game} is true
+		if score of loop-player for {_o} is 26:
+			health of loop-player >= 1.5
+			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% 自動発動" to loop-player
+		if score of loop-player for {_o} is 17:
+			health of all players where [player input is not loop-player] >= 1.5
+			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% 自動発動" to loop-player
 		if score of loop-player for {_o} is 38:
 			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% ダメージを受ける時にスニークしていると発動" to loop-player
 		if score of loop-player for {_o} is 21:
-			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% 左クリックでアンカーを飛ばし刺さったあとスニーク長押して発動" to loop-player
-		if score of loop-player for {_o} is 20, 32 or 43:
-			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% 常時発動" to loop-player
+			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% 経験値1以上の時弓を持った状態でスニークで発動" to loop-player
+		if score of loop-player for {_o} is 20 , 43 or 9:
+			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% 自動発動" to loop-player
+		if score of loop-player for {_o} is 32:
+			set {_ct} to objective with id "ability_ct"
+			if ability_use(loop-player)-score of loop-player for {_ct} <= 0:
+				set score of loop-player for {_ct} to ability_use(loop-player)
+				send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% ダメージ半減中" to loop-player
+			else:
+				send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% %dot_(ability_use(loop-player)/20-score of loop-player for {_ct}/20)%秒後にダメージ半減" to loop-player
 				
 every tick:
 	set {_o} to objective with id "ability"
+	set {_ct} to objective with id "ability_ct"
 	loop all players:
 		score of loop-player for {_o} is 14,19,23,30,35,40 or 44
-		set {_ct} to objective with id "ability_ct"
-		if ability_use(loop-player)-score of loop-player for {_ct} <= 0:
-			set score of loop-player for {_ct} to ability_use(loop-player)
-			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% 使用可能" to loop-player
+		set {_cd} to score of loop-player for {_ct} / 20
+		send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% %dot_({_cd})%秒（%dot_(ability_use(loop-player) / 20)%秒で使用可能）" to loop-player
+		ability_use(loop-player)-score of loop-player for {_ct} <= 0
+		set score of loop-player for {_ct} to ability_use(loop-player)-1
+		
+
+function dot_(n: number) :: text:
+	set {_n::*} to "%{_n}%" parsed as "%number%.%number%"
+	if parse error is set:
+		return "%{_n}%.00"
+	else:
+		if {_n::2} < 10:
+			return "%{_n::1}%.%{_n::2}%0"
 		else:
-			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% %ability_use(loop-player)/20-floor(score of loop-player for {_ct}/20)%秒後に使用可能" to loop-player
+			return "%{_n}%"
