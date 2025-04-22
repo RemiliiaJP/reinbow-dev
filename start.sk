@@ -21,7 +21,7 @@ command /start:
 			stop loop if {game} is false
 			set {_t}'s pitch to 0
 			if loop-counter is 45*20+2:
-
+				set {safe} to 120
 			if loop-counter is (90+120)*20:
 				set {safe} to 80
 			if loop-counter is (90+120)*20-1:
