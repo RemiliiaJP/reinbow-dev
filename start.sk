@@ -55,7 +55,7 @@ on command "/start":
 		loop all players:
 			set slot (integers between 9 and 26) of loop-player to black stained glass pane named " "
 			set slot 13 of loop-player to {gui::%score of loop-player for {_o}%}
-			set slot 6 of loop-player to compass
+			set slot 6 of loop-player to compass with lore "&7コンパスの針はセーフエリアの中心を指す%nl%&7生存している味方が居る時、手に持ってスニークし続けると%nl%&7ランダムな味方の位置に転移する"
 			set slot 7 of loop-player to spyglass
 			set {shield::%loop-player%} to 5 if score of loop-player for {_o} is 42
 			send name of {gui::%score of loop-player for {_o}%} to loop-player
@@ -625,13 +625,11 @@ on damage:
 every tick:
 	set arrows stuck in all players to 0
 	set {_o} to objective with id "ability"
-	set {_al} to size of all players where [gamemode of player input is adventure] 
-	if {_al} is 2:
-		{mode} >= 2
-		loop {_al::*}:
-			command "/duo-end" if team of loop-value is {_t}
-			set {_t} to team of loop-value
-#	add 0.1 to {_al} if {_al} is 1
+	set {_al::*} to all players where [gamemode of player input is adventure]
+	set {_al} to size of {_al::*}
+	if {mode} >= 2:
+		teams(first element of {_al::*}) is {_al::*} where [input is not first element of {_al::*}]
+		command "/duo-end" 
 	if {_al} is 1:
 		{game} is true
 		if {mode} >= 2:
@@ -666,7 +664,7 @@ every tick:
 			set line 4 of fastboard of loop-player to "&b - 能力: &6&l%name of {gui::%score of loop-player for {_o}%}% " 
 			set line 4 of fastboard of loop-player to "&b - 能力: &6闇鍋 (%name of {gui::%score of loop-player for {_o}%}%)" if loop-player has scoreboard tag "yaminabe" 
 #コンパス
-		set loop-player's compass target to random element of text display where [entity input do not have score board tag "pin"]
+		set loop-player's compass to target to random element of text display where [entity input do not have score board tag "pin"]
 #矢の数
 		set {_t} to objective with id "tier"
 		gamemode of loop-player is not creative
