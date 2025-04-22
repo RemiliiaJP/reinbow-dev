@@ -511,7 +511,7 @@ every tick:
 	loop all players:
 		gamemode of loop-player is adventure or survival
 		score of loop-player for {_o} is 35
-		increase level progress of loop-player by 0.01
+		increase level progress of loop-player by 0.01*0.75
 
 left click:
 	tool is bow
@@ -700,13 +700,17 @@ every tick:
 			set {_a} to floor(level of loop-player)
 			set slot 8 of loop-player to {_a} of arrow
 		if gamemode of loop-player is not spectator:
-			set {_l} to loop-player's level+level progress of loop-player 
-			if {_l} > score of loop-player for {_t}/4+1:
-				set loop-player's level to score of loop-player for {_t}/4+1
-#				set level progress of loop-player to 0
-			{_l} <= score of loop-player for {_t}/4+1
+			set {_l} to loop-player's level+level progress of loop-player
+		if {_l} > 3:
+			set loop-player's level to 3
+			set level progress of loop-player to 0
+		else if {_l} > score of loop-player for {_t}/4+1:
+			set loop-player's level to 0
+			set loop-player's level progress to score of loop-player for {_t}/4+1
+		else if {_l} != score of loop-player for {_t}/4+1:
 			increase level progress of loop-player by 0.01
-			set {_l} to loop-player's level+level progress of loop-player 
+
+
 
 #大盾
 on sneak toggle:
