@@ -32,7 +32,7 @@ command /start:
 				set {safe} to 15
 
 on command "/start":
-	set view distance of all players to 14-sized of all players+2
+	set view distance of all players to 14-size of all players+2
 	loop size of all players*2 time:
 		wait 1 second
 		loop-counter is 15
