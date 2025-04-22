@@ -16,40 +16,21 @@ command /start:
 		set level progress of all players to 0
 		set {safe} to 10000
 		wait 3 tick
-		set {_t} to random element of text displays where [entity input do not have score board tag "pin"]
 		loop 15901 time:
 			wait tick
 			stop loop if {game} is false
 			set {_t}'s pitch to 0
 			if loop-counter is 45*20+2:
-				#player command "/disguuid %uuid of {_t}% Block_Display blue_stained_glass_pane setScale 2,-50,2 setGlowing true setGlowColorOverride blue  "
-				loop all armor stands:
-					set {_l} to loop-value-2 offset by cylindrical vector radius (random integer between 20 and 80), yaw (random integer between -180 and 180), height 0.00
-				#	teleport loop-value-2 to {_l}
-				set {safe} to 120
+
 			if loop-counter is (90+120)*20:
 				set {safe} to 80
-				#command "/disguuid %uuid of {_t}% Block_Display light_blue_stained_glass_pane setScale 2,-50,2 setGlowing true setGlowColorOverride AQUA"
-				loop all armor stands:
-					set {_l} to loop-value-2 offset by cylindrical vector radius (random integer between 12 and 60), yaw (random integer between -180 and 180), height 0.00
-				#	teleport loop-value-2 to {_l}
 			if loop-counter is (90+120)*20-1:
 				set {safe} to 40
-				#command "/disguuid %uuid of {_t}% Block_Display yellow_stained_glass_pane setScale 2,-50,2 setGlowing true setGlowColorOverride yellow"
-				loop all armor stands:
-					set {_l} to loop-value-2 offset by cylindrical vector radius (random integer between 12 and 33), yaw (random integer between -180 and 180), height 0.00
-				#	teleport loop-value-2 to {_l}
 			if loop-counter is (240+240+30)*20:
 				set {safe} to 20
-				#command "/disguuid %uuid of {_t}% Block_Display orange_stained_glass_pane setScale 2,-50,2 setGlowing true setGlowColorOverride orange"
 			if loop-counter is (240+240+180)*20:
 				set {safe} to 15
-				#command "/disguuid %uuid of {_t}% Block_Display red_stained_glass_pane setScale 2,-50,2 setGlowing true setGlowColorOverride red"
-#every 5 tick:
-	#loop all armor stands:
-	#	teleport the nearest interaction relative to loop-entity 1 meter above loop-entity
-	#	block below loop-entity is air
-	#	teleport loop-entity 0.01 meter downward loop-entity
+
 on command "/start":
 	command "/setblock -63 2 69 minecraft:redstone_block keep"
 on command "/end":					
