@@ -9,9 +9,6 @@ command /start-duo:
 			set allow friendly fire team state of team named "%round(loop-counter/2)%" to false
 			command "/team modify %round(loop-counter/2)% nametagVisibility hideForOtherTeams"
 			add loop-player to team named "%round(loop-counter/2)%"
-			loop-counter is size of all players
-			mod(size of all players, 2) is not 0
-			send "&7ごめんなさい。チーム配る時に余ったプレイヤーのバグが直る事を祈ってください。" to loop-player
 		do while {game} is true:  
 			wait tick
 			loop all players:
@@ -79,13 +76,11 @@ on sneak toggle:
 		play sound "block.note_block.pling" with volume 0.2 and pitch loop-counter*0.01
 		loop-counter is 200
 		set {_team} to team of player
-		loop all players:
-			team of loop-player is {_team}
+		loop shuffled teams(player):
 			gamemode of loop-player is not spectator or creative
-			loop-player is not player
 			set {_tm} to loop-player
 			teleport player to {_tm}
-		stop
+			stop
 on sneak toggle:
 	{mode} >= 2
 	tool is beacon
