@@ -8,7 +8,6 @@ command /start:
 		clear {death::*}
 		command "/scoreboard players reset @a ArrowHit"
 		command "/scoreboard players set @a tier 0"
-		set {_t} to objective with id "tier"
 		loop all players:
 			set {hit::%name of loop-player%} to 0
 			set {kill::%name of loop-player%} to 0
@@ -19,7 +18,6 @@ command /start:
 		loop 15901 time:
 			wait tick
 			stop loop if {game} is false
-			set {_t}'s pitch to 0
 			if loop-counter is 45*20+2:
 				set {safe} to 120
 			if loop-counter is (90+120)*20:
