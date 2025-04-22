@@ -34,11 +34,13 @@ on shoot:
 	{game} is true
 	shooter is player
 	add 1 to {remi::shoot::%shooter%}
-on projectile collide:
-	event-entity is set
-	shooter is player
-	{game} is true
-	add 1 to {remi::hit::%shooter%}
+
+on damage of player:
+	attacker is not victim
+	attacker is player
+	if damage type of damage source = arrow:
+		{game} is true
+		add 1 to {remi::hit::%attacker%}
 command /info <offline player>:
 	trigger:
 		send "HIT:%{remi::hit::%arg%}% SHOT:%{remi::shoot::%arg%}% h/s%{remi::hit::%arg%}/{remi::shoot::%arg%}%" to player
