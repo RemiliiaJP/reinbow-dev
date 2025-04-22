@@ -56,7 +56,8 @@ command /gui:
         set {gui::47} to hopper named "強欲" with lore "&e「強欲」は、回復の量を倍増させ、生存力を高める能力。%nl%&fケアパッケージや敵を倒した時に獲得する回復ポーションの量が二倍になる。%nl%&f矢を当てると低確率で相手の回復ポーションを奪う。%nl%%nl%&7操作%nl%&7 なし"
         set {gui::48} to sculk sensor named "変装" with lore "&e「変装」は、倒した相手の能力と見た目を奪い、彼らの力を自分のものにする能力。%nl%&f倒した相手の能力と見た目を奪う。%nl%&f変装するまでは透明になり、パーティクルが出る。%nl%%nl%&7操作 %nl%&7 なし"
         set {gui::18} to cherry leaves named "桜華" with lore "&e「桜華」は、桜吹雪の中に隠れ、相手を撹乱できる能力。%nl%&f弓を投げて能力を使用すると、発動した場所から5秒間半径8メートルにランダムに転移し続ける分身を生み出す。%nl%&fまた範囲内に居る敵にデバフを与え 自身はバフを得る%nl%%nl%&7操作%nl%&7 [投げる(弓)] - 隠れる"
-        set {gui::200} to ender pearl named "転移" with lore "&e「転移」は、自身の好きな場所へテレポートすることができる能力。%nl%&f弓を投げて能力を使用すると、自分の飛ばした矢にテレポートすることができる。%nl%%nl%&f操作%nl%&7 [投げる(弓)] - 飛ばした矢へテレポートする"
+        set {gui::49} to spider eye named "暗殺" with lore "&e「暗殺」は、指定された対象を殺し、報酬を受け取る事が出来る能力。%nl%&f60秒に一回対象が暗殺の指定される。%nl%&f指定された対象は自分からは光って見える&f%nl%&f殺害すると暗殺報酬アイテムが手に入り、使用すると報酬が手に入る%nl%%nl%&7操作%nl%&7 [右クリック(暗殺報酬)] - 報酬画面を開く"
+        set {gui::200} to ender pearl named "転移" with lore "&e「転移」は、自身の好きな場所へテレポートすることができる能力。%nl%&f弓を投げて能力を使用すると、自分の飛ばした矢にテレポートすることができる。%nl%%nl%&7操作%nl%&7 [投げる(弓)] - 飛ばした矢へテレポートする"
         loop {gui::*}:
             index of loop-value is not 200
             set slot loop-counter - 1 of player's current inventory to loop-value
