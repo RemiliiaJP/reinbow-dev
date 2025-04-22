@@ -644,11 +644,7 @@ on damage:
 every tick:
 	set arrows stuck in all players to 0
 	set {_o} to objective with id "ability"
-	loop all players:
-		gamemode of loop-player is adventure or survival
-		add 1 to {_al}
-		add loop-player to {_al::*}
-	
+	set {_al} to size of all players where [gamemode of player input is adventure] 
 	if {_al} is 2:
 		{mode} >= 2
 		loop {_al::*}:
@@ -661,6 +657,7 @@ every tick:
 			command "/duo-end"  
 		else:
 			command "/end"
+			
 	rainbowText("れいんボウ")              
 	loop all players:
 		set title of fastboard of loop-player to join {fb::*}
@@ -688,9 +685,7 @@ every tick:
 			set line 4 of fastboard of loop-player to "&b - 能力: &6&l%name of {gui::%score of loop-player for {_o}%}% " 
 			set line 4 of fastboard of loop-player to "&b - 能力: &6闇鍋 (%name of {gui::%score of loop-player for {_o}%}%)" if loop-player has scoreboard tag "yaminabe" 
 #コンパス
-		loop all text displays:
-			loop-entity-2 do not have score board tag "pin"
-			set loop-player-1's compass target to loop-entity-2
+		set loop-player's compass target to random element of text display where [entity input do not have score board tag "pin"]
 #矢の数
 		set {_t} to objective with id "tier"
 		gamemode of loop-player is not creative
