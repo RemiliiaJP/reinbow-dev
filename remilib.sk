@@ -26,7 +26,6 @@ command /send <player> <text>:
 	permission: op
 	trigger:
 		send arg-1 to server arg-2
-
 function syncscore():
 	set {_o} to objective with id "info"
 	set score of "$mode" for {_o} to {mode}

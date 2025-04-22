@@ -15,25 +15,49 @@ command /start:
 		set all players's level to 0
 		set level progress of all players to 0
 		set {safe} to 10000
-		wait 6 tick
+		wait 3 tick
+		set {_t} to random element of text displays where [entity input do not have score board tag "pin"]
 		loop 15901 time:
 			wait tick
 			stop loop if {game} is false
-			if loop-counter is 45*20:
+			set {_t}'s pitch to 0
+			if loop-counter is 45*20+2:
+				#player command "/disguuid %uuid of {_t}% Block_Display blue_stained_glass_pane setScale 2,-50,2 setGlowing true setGlowColorOverride blue  "
+				loop all armor stands:
+					set {_l} to loop-value-2 offset by cylindrical vector radius (random integer between 20 and 80), yaw (random integer between -180 and 180), height 0.00
+				#	teleport loop-value-2 to {_l}
 				set {safe} to 120
 			if loop-counter is (90+120)*20:
 				set {safe} to 80
-			if loop-counter is (120+240)*20:
+				#command "/disguuid %uuid of {_t}% Block_Display light_blue_stained_glass_pane setScale 2,-50,2 setGlowing true setGlowColorOverride AQUA"
+				loop all armor stands:
+					set {_l} to loop-value-2 offset by cylindrical vector radius (random integer between 12 and 60), yaw (random integer between -180 and 180), height 0.00
+				#	teleport loop-value-2 to {_l}
+			if loop-counter is (90+120)*20-1:
 				set {safe} to 40
+				#command "/disguuid %uuid of {_t}% Block_Display yellow_stained_glass_pane setScale 2,-50,2 setGlowing true setGlowColorOverride yellow"
+				loop all armor stands:
+					set {_l} to loop-value-2 offset by cylindrical vector radius (random integer between 12 and 33), yaw (random integer between -180 and 180), height 0.00
+				#	teleport loop-value-2 to {_l}
 			if loop-counter is (240+240+30)*20:
 				set {safe} to 20
-			if loop-counter is (240+240+150)*20:
-				set {safe} to 15/2
-
+				#command "/disguuid %uuid of {_t}% Block_Display orange_stained_glass_pane setScale 2,-50,2 setGlowing true setGlowColorOverride orange"
+			if loop-counter is (240+240+180)*20:
+				set {safe} to 15
+				#command "/disguuid %uuid of {_t}% Block_Display red_stained_glass_pane setScale 2,-50,2 setGlowing true setGlowColorOverride red"
+#every 5 tick:
+	#loop all armor stands:
+	#	teleport the nearest interaction relative to loop-entity 1 meter above loop-entity
+	#	block below loop-entity is air
+	#	teleport loop-entity 0.01 meter downward loop-entity
+on command "/start":
+	command "/setblock -63 2 69 minecraft:redstone_block keep"
+on command "/end":					
+	command "/setblock -63 2 67 minecraft:redstone_block keep"
 on command "/start":
 	syncscore()
 	player command "glow reset"
-	wait 5 tick
+	wait 2 tick
 	set {game} to true
 	set {_o} to objective with id "ability"
 	loop indices of {gui::*}: 
@@ -62,7 +86,7 @@ command /end:
 		command "glow reset"
 		set {_o} to objective with id "ability"
 		loop all players:
-			execute loop-player command "undisg"
+			command "undisguuid %uuid of loop-player%"
 			gamemode of loop-player is adventure or survival
 			add name of loop-player to {death::*}
 		loop reversed {death::*}:
@@ -113,10 +137,9 @@ on damage of player:
 
 inventory click:
 	cancel event if event-slot is slot 8 of player's inventory 
-on shoot:
-	shooter is player
-	projectile is arrow
-	reduce the shooter's level by 1
+on entity shoot bow:
+	event-item type is arrow
+	reduce shooter's level by 1
 
 
 on drop:
@@ -162,6 +185,8 @@ on damage of player:
 	attacker is not victim
 	attacker is player
 	damage is not 0
+	play sound "entity.firework_rocket.large_blast" with pitch 1 to attacker
+	play sound "entity.arrow.hit_player" with pitch 0 to attacker
 	if damage type of damage source = arrow:
 		set {_d} to distance between attacker and victim
 		health of victim - final damage >= 0
@@ -170,7 +195,6 @@ on damage of player:
 		send "&l[&c&lHIT&f&l] %attacker% &e&l≫&6&l≫&c&l≫&4&l≫ &f&l%victim% &7(%{_d}%m)" to all players
 		send title "" with subtitle "&c&lHIT &6➳ &f&l%victim% &6&l(%{_d}%m)" to attacker
 		give tipped arrow named "[%{_d}%m HIT] おめでとう!" to attacker if {_d} >= 100
-		play sound "entity.experience_orb.pickup" to attacker
 		execute console command "scoreboard players add %attacker% ArrowHit 1"
 projectile hit:
 	loop {target::%victim%::*}:
@@ -184,15 +208,51 @@ on damage:
 	execute console command "/scoreboard players set %attacker% damage_dealt 1"
 	
 
-#速射
+#連射
 on player drop of an bow:
 	set {_o} to objective with id "ability"
 	score of player for {_o} is 14
 	ability_use(player, false) is -1
-	loop 4 time:
-		make player shoot arrow at speed 2
-		wait 5 tick
-
+	loop 7 time:
+		set {_v} to vector in direction of player
+		shoot arrow from player at speed (random number between 0.5 and 2) {_v}
+		wait 3 tick
+#小転移
+on player drop of an bow:
+	set {_o} to objective with id "ability"
+	score of player for {_o} is 18
+	ability_use(player, false) is -1
+	set {_p} to player's location
+	loop 6 time:
+		spawn husk:
+			set husk's ai to false
+			make husk invulnerable
+			add husk to {_t::*}
+			make husk silent 
+	loop {_t::*}:
+		execute console command "/disguuid %uuid of loop-value% Player %name of player% setNameVisible false setItemInMainHand bow"
+	effect(player, invisibility, 1, 100 tick)
+	effect(player, speed, 6, 100 tick)
+	loop 100 time:
+		loop {_t::*}:
+			set {_l} to {_p} offset by cylindrical vector radius (random integer between 2 and 8), yaw (random integer between -180 and 180), height 0.25
+			make 12 of cherry_leaves at {_l} with delta vector(1,5,1) with extra 0.2 for all players
+			teleport loop-value-2 to {_l}
+			loop all players in radius 8 meter around {_p}:
+				loop-player is not player
+				if {mode} is 2, 3 or 4:
+					team of player is not team of loop-player
+					effect(loop-player, slowness, 6, 100 tick)
+					effect(loop-player, nausea, 6, 100 tick)
+				else:
+					effect(loop-player, slowness, 6, 100 tick)
+					effect(loop-player, nausea, 6, 100 tick)
+		wait 1 tick
+	make 12 of cherry_leaves at {_t::*} with delta vector(1,1,1) with extra 0.2 for all players
+	loop {_t::*}:
+		execute console command "/disguuid %uuid of loop-value% block_display air"
+		kill loop-value
+#	teleport player to {_p}
 #必殺
 every tick:
 	loop all players:
@@ -208,9 +268,6 @@ every tick:
 			command "glow %loop-player-2% %loop-player-1% red NEVER ALWAYS"
 			send action bar "能力:必殺 自動発動 %loop-player-2%(%{_d}%m)が瀕死です" to loop-player-1
 			add potion effect of speed of tier 8 without particles for 6 tick to potion effects of loop-player-1 if {_d} is smaller than 24
-			set {_l} to loop-player-1's level+level progress of loop-player-1
-			set {_t} to objective with id "tier"
-			{_l} <= score of loop-player-1 for {_t}
 			increase level progress of loop-player-1 by 0.02
 		
 
@@ -228,8 +285,8 @@ on shoot:
 	shooter is sneaking
 #	reset velocity of projectile
 	add "gravity" to scoreboard tags of projectile
-	set {_ray} to ray trace from shooter with max distance 320 with ray size 0.5 while ignoring passable blocks while ignoring all players where [gamemode of player input is not survival or adventure] and all entities where [distance between shooter and entity input <= 15] if {mode} is 0 or 1
-	set {_ray} to ray trace from shooter with max distance 320 with ray size 0.5 while ignoring passable blocks while ignoring all players where [gamemode of player input is not survival or adventure] and all entities where [distance between shooter and entity input <= 15] and teams(shooter) if {mode} is 2 , 3 or 4
+	set {_ray} to ray trace from shooter with max distance 888 with ray size 0.5 while ignoring passable blocks while ignoring all players where [gamemode of player input is not survival or adventure] and all entities where [distance between shooter and entity input <= 15] if {mode} is 0 or 1
+	set {_ray} to ray trace from shooter with max distance 888 with ray size 0.5 while ignoring passable blocks while ignoring all players where [gamemode of player input is not survival or adventure] and all entities where [distance between shooter and entity input <= 15] and teams(shooter) if {mode} is 2 , 3 or 4
 	set {_a} to projectile
 	play sound "entity.generic.explode" to shooter if {_ray} is set
 	set {_d} to damage source from arrow directly by shooter
@@ -243,7 +300,7 @@ on shoot:
 		set {_v} to vector in direction of shooter * loop-number /5
 		add vector 0, 1, 0 to {_v}
 		set {_l} to shooter offset by {_v}
-		draw 1 of dust using dustOption(dark red, 1) at {_l} with extra 2
+		draw 2 of dust using dustOption(dark red, 1) at {_l} with extra 127 with force
 #捕食
 on death of player:
 	set {_o} to objective with id "ability"
@@ -278,9 +335,6 @@ every tick:
 		loop-player's max health is 5
 		send action bar "能力:背水 発動中" to loop-player
 		add potion effect of speed of tier 8 without particles for 6 tick to potion effects of loop-player
-		set {_l} to loop-player's level+level progress of loop-player
-		set {_t} to objective with id "tier"
-		{_l} <= score of loop-player for {_t}/4
 		increase level progress of loop-player by 0.01
 on damage:
 	set {_o} to objective with id "ability"
@@ -351,6 +405,9 @@ on player drop of an bow:
 		teleport {_e} to {_l::%loop-counter%}
 		if gamemode of player is spectator:
 			kill {_e}
+		if player is not online:
+			kill {_e}
+		
 	remove {_e} from {a30::%player%::*}
 on damage of villager:
 	if attacker is villager:
@@ -394,6 +451,8 @@ on damage of player:
 
 #解放
 on damage of player:
+	set {_o} to objective with id "ability"
+	score of victim for {_o} is 33
 	gamemode of victim is adventure or survival
 	gamemode of attacker is adventure or survival
 	attacker is not victim
@@ -404,11 +463,22 @@ on damage of player:
 		set {NoTD::%victim%} to 1
 
 on player drop of an bow:
-	{NoTD::%player%} is not 0
 	set {_o} to objective with id "ability"
 	score of player for {_o} is 33
-	play sound "minecraft:block.beacon.deactivate" with pitch 2 at player to all players
-	loop all players in radius 5 meter around player:
+	{NoTD::%player%} is not 0
+	{NoTD::%player%} is set
+	set {_p} to player's location
+	effect(player, speed, 12, 5 tick)
+	play sound "item.trident.thunder" with volume 0.5 and pitch 2 at player to all players
+	loop 5 time:
+		loop 360 times:
+			set {_l} to {_p} offset by spherical vector radius 6-loop-number-1, yaw loop-number-2*8, pitch random integer between -90 to 90
+			play sweep attack on {_l} to all players
+			
+		wait 0.1 second
+	play sound "minecraft:block.beacon.deactivate" with pitch 1 at player to all players
+	play 5 explosion emitter on {_p} to all players
+	loop all players in radius 6 meter around {_p}:
 		loop-player is not player
 		loop-player's gamemode is adventure
 		if {mode} is 2, 3 or 4:
@@ -441,9 +511,6 @@ every tick:
 	loop all players:
 		gamemode of loop-player is adventure or survival
 		score of loop-player for {_o} is 35
-		set {_l} to loop-player's level+level progress of loop-player
-		set {_t} to objective with id "tier"
-		{_l} <= score of loop-player for {_t}/4
 		increase level progress of loop-player by 0.01
 
 left click:
@@ -543,16 +610,20 @@ on player drop of an bow:
 	set {_v} to vector in direction of player
 	if player is not sneaking:
 		set {_s} to false
+
 	else:
 		set {_s} to true
-	loop 100 time:
+	loop 150 time:
 		set {_t::*} to player if {_s} is true
-		set {_t::*} to all players in radius 30 meter around player where [gamemode of player input is adventure or survival] if {_s} is false
+		set {_t::*} to all players in radius 16 meter around player where [gamemode of player input is adventure or survival] if {_s} is false
 		remove all player from {_t::*} if {_s} is false
 		if {mode} is 2, 3 or 4:
 			remove all players where [team of player input is team of player] from {_t::*} if {_s} is false
 		set {_t::*}'s velocity to {_v} * 0.25
 		wait tick
+		loop 20 times:
+			set {_l} to player offset by spherical vector radius 16, yaw random integer between -180 to 180, pitch random integer between -90 to 90
+			make 1 of witch at {_l} with force if {_s} is false
 #跳弾   
 on projectile hit:
 	projectile has scoreboard tag "bouncy"
@@ -577,11 +648,13 @@ every tick:
 		gamemode of loop-player is adventure or survival
 		add 1 to {_al}
 		add loop-player to {_al::*}
+	
 	if {_al} is 2:
 		{mode} >= 2
 		loop {_al::*}:
 			command "/duo-end" if team of loop-value is {_t}
 			set {_t} to team of loop-value
+#	add 0.1 to {_al} if {_al} is 1
 	if {_al} is 1:
 		{game} is true
 		if {mode} >= 2:
@@ -633,7 +706,7 @@ every tick:
 			increase level progress of loop-player by 0.01
 			set {_l} to loop-player's level+level progress of loop-player 
 			if {_l} > 3:
-				set loop-players's level to 3
+				set loop-player's level to 3
 				set level progress of loop-player to 0
 #大盾
 on sneak toggle:
@@ -810,8 +883,9 @@ on sneak toggle:
 	set {_o} to objective with id "ability"
 	score of player for {_o} is 21
 	tool is bow
-	level of player >= 1
 	metadata value "anchor" of player is not alive
+	level of player >= 1
+	reduce player's level by 1
 	kill metadata value "anchor" of player
 	shoot arrow from player at speed 10
 	play sound "entity.arrow.shoot"
@@ -847,7 +921,6 @@ on sneak toggle:
 			stop loop
 		if player is not sneaking:
 			stop loop
-	reset player's velocity
 	play sound "entity.wither.shoot" with pitch 2
 	push player (vector from player to {_p}) at speed 1
 	effect(player, levitation, 1 , 0.7 second)
@@ -882,6 +955,8 @@ function ability_use(p: player, get: boolean=true) :: number:
 		set {_ct} to 600
 	if score of {_p} for {_o} is 44:
 		set {_ct} to 600
+	if score of {_p} for {_o} is 18:
+		set {_ct} to 300
 
 	set {_o} to objective with id "ability_ct"
 	if {_get} is false:
@@ -908,7 +983,7 @@ on damage:
 	set {_o} to objective with id "ability"
 	score of victim for {_o} is 32
 	ability_use(victim, false) is -1
-	heal victim by 0.5	
+	set damage to 0.5	
 every tick:
 	set {_o} to objective with id "ability"
 	loop all players:
@@ -937,7 +1012,7 @@ every tick:
 	set {_o} to objective with id "ability"
 	set {_ct} to objective with id "ability_ct"
 	loop all players:
-		score of loop-player for {_o} is 14,19,23,30,35,40 or 44
+		score of loop-player for {_o} is 14,19,23,30,35,40,44 or 18
 		set {_cd} to score of loop-player for {_ct} / 20
 		send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% %dot_({_cd})%秒（%dot_(ability_use(loop-player) / 20)%秒で使用可能）" to loop-player
 		ability_use(loop-player)-score of loop-player for {_ct} <= 0

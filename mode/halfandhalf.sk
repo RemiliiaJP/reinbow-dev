@@ -1,4 +1,4 @@
-command /halfandhalf:
+command /2teams:
     permission: op
     trigger:
         set {mode} to 4

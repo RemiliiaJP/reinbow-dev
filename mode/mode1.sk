@@ -1,9 +1,9 @@
-command /select-duo:
+command /select-solo:
 	permission: op
 	trigger:
 		clear {a::*}
 		set gamemode of all players to adventure
-		set {mode} to 3
+		set {mode} to 1
 		set {_o} to objective with id "ability"
 		set score of all players for {_o} to 0
 		set {_gui} to chest inventory with 6 rows named "&l能力選択"
@@ -13,17 +13,16 @@ command /select-duo:
 			wait tick
 			if top inventory of all players's name do not contain "&l能力選択":
 				stop loop 
-		command "/start-duo"
+		command "/start"
 		wait 2 tick
 		set {_o} to objective with id "ability"
 		loop all players:
 			if {a::%loop-player%} is not set:
 				set score of loop-player for {_o} to random element of {sel::*}
-			else:
-				set score of loop-player for {_o} to {a::%loop-player%}
+			set score of loop-player for {_o} to {a::%loop-player%}
 			
 every tick:
-	{mode} is 3
+	{mode} is 1
 	loop all players:
 		set {_o} to objective with id "ability"
 		if score of loop-player for {_o} is 0:
@@ -34,11 +33,10 @@ every tick:
 		name of loop-player's current inventory is "&l能力選択"
 		set {_gui} to loop-player's current inventory
 		set slot (integers between 0 and 57) of {_gui} to air
-		play sound "block.anvil.land" to loop-player
 		loop indices of {sel::*}:
 			set slot loop-value-2 parsed as number of {_gui} to {sel::%loop-value-2%}
 on inventory click:
-	{mode} is 3
+	{mode} is 1
 	name of player's current inventory is "&l能力選択"
 	cancel event
 	event-item is set

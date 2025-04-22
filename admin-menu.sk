@@ -11,11 +11,12 @@ function admin_menu(p: player):
 
 	set slot 0 of {_gui} to bow named "&7ゲーム開始"
 	set slot 2 of {_gui} to arrow named "ゲームモード選択" with lore "モード: solo" if {menu.mode} is 0
-	set slot 2 of {_gui} to tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/solo" if {menu.mode} is 1
-	set slot 2 of {_gui} to spectral arrow named "ゲームモード選択" with lore "モード: duo" if {menu.mode} is 2
-	set slot 2 of {_gui} to stick named "ゲームモード選択" with lore "モード: 自由選択/duo" if {menu.mode} is 3
-	set slot 2 of {_gui} to red banner named "ゲームモード選択" with lore "モード: ２チーム" if {menu.mode} is 4
-	set slot 2 of {_gui} to 2 of bow named "ゲームモード選択" with lore "モード: エイプリルフール" if {menu.mode} is 5
+	set slot 2 of {_gui} to tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/solo" if {menu.mode} is 3
+	set slot 2 of {_gui} to 2 of arrow named "ゲームモード選択" with lore "モード: duo" if {menu.mode} is 1
+	set slot 2 of {_gui} to 2 of tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/duo" if {menu.mode} is 4
+	set slot 2 of {_gui} to red banner named "ゲームモード選択" with lore "モード: ２チーム" if {menu.mode} is 5
+	set slot 2 of {_gui} to spectral arrow named "ゲームモード選択" with lore "モード: エイプリルフール/solo" if {menu.mode} is 6
+	set slot 2 of {_gui} to 3 arrow named "ゲームモード選択" with lore "モード: trio" if {menu.mode} is 2
 	set slot 8 of {_gui} to chest named "能力GUIを開く"
 	open {_gui} to {_p}
 on load:
@@ -28,19 +29,21 @@ on inventory click:
 		if {menu.mode} is 0:
 			player command "start"
 		if {menu.mode} is 1:
-			player command "select-mode"	
+			player command "start-duo"	
 		if {menu.mode} is 2:
-			player command "start-duo"
+			player command "trio"
 		if {menu.mode} is 3:
-			player command "select-duo"
+			player command "select-solo"
 		if {menu.mode} is 4:
-			player command "halfandhalf"
+			player command "select-duo"
 		if {menu.mode} is 5:
+			player command "2teams"
+		if {menu.mode} is 6:
 			player command "april"
 		
 	else if index of event-slot is 2:
 		add 1 to {menu.mode}
-		set {menu.mode} to 0 if {menu.mode} > 5
+		set {menu.mode} to 0 if {menu.mode} > 6
 		admin_menu(player)
 	if index of event-slot is 8:
 		player command "/gui"

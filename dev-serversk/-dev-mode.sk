@@ -4,10 +4,6 @@ every 1 tick:
 	loop all players:
 		set line 8 of fastboard of loop-player to "mode: %{mode}% game: %{game}%"
 		set line 9 of fastboard of loop-player to "ct: %score of loop-player for {_o}% ct: %score of loop-player for {_o2}% %{safe}%"
-on command "/start":
-	command "/setblock -63 2 69 minecraft:redstone_block keep"
-on command "/end":					
-	command "/setblock -63 2 67 minecraft:redstone_block keep"
 on death:
 	set gamemode of victim to spectator
 command /sandback:
