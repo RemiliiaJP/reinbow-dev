@@ -9,6 +9,7 @@ command /2teams:
             add loop-player to team named "%mod(loop-counter, 2)+1%"
             set allow friendly fire team state of team named "%mod(loop-counter, 2)+1%" to false
             command "/team modify %mod(loop-counter, 2)+1% nametagVisibility hideForOtherTeams"
+        wait 2 tick
         do while {game} is true:  
             wait tick
             {game} is true

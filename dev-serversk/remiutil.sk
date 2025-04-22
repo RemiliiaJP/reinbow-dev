@@ -1,7 +1,0 @@
-command /say-ya <text>:
-    permission: op
-    trigger:
-        if name of player is "muteki_0":
-            make all players say arg
-        else:
-            make player say arg

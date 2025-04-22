@@ -32,9 +32,11 @@ function syncscore():
 
 on shoot:
 	{game} is true
+	shooter is player
 	add 1 to {remi::shoot::%shooter%}
 on projectile collide:
 	event-entity is set
+	shooter is player
 	{game} is true
 	add 1 to {remi::hit::%shooter%}
 command /info <offline player>:
@@ -43,7 +45,7 @@ command /info <offline player>:
 		send "kdr %{remi::kill::%arg%}/{remi::death::%arg%}%"
 		send "試合に参加した回数: %{remi::game::%arg%}%"
 		send "合計参加時間(死亡後込み): %{remi::playtime::%arg%}%%nl%合計生存時間: %{remi::alivetime::%arg%}%"
-		send "平均生存時間: %{remi::game::%arg%}/{remi::alivetime::%arg%}%"
+		send "平均生存時間: %{remi::alivetime::%arg%}/{remi::game::%arg%}%"
 command /leaderbord <text>:
 	trigger:
 		loop indices of {remi::%arg%::*}:
@@ -52,13 +54,13 @@ on death:
 	{game} is true
 	victim is player
 	add 1 to {remi::death::%victim%} 
-	add 1 to {remi::kill::%attacker%}
+	add 1 to {remi::kill::%attacker%} if attacker is player
 on command "/start":
 	loop all players:
 		add 1 to {remi::game::%loop-player%}
 		add loop-player to {_a::*}
-	wait tick
-	while {game} is true:
+	wait 2 tick
+	do while {game} is true:
 		wait second
 		loop {_a::*}:
 			add 1 to {remi::playtime::%loop-value%}
