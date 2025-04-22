@@ -32,14 +32,14 @@ command /end-duo:
 			set line 6 of fastboard of loop-player to " "
 			set line 7 of fastboard of loop-player to " "
 			set line 8 of fastboard of loop-player to " "
-every 10 tick:
-	
+every 1 tick:
 	set {_o} to objective with id "ability"
 	{mode} >= 2
 	{mode} is not 4
 	loop all players:
 		set {_tm} to random element of teams(loop-player)
 		{_tm} is set
+		gamemode of {_tm} is adventure 
 		set line 5 of fastboard of loop-player to "&6Team: %{_tm}% (%distance between {_tm} and loop-player%m)"
 		set line 6 of fastboard of loop-player to "&6能力: &c%name of {gui::%score of {_tm} for {_o}%}%"
 		set line 7 of fastboard of loop-player to "&6体力: &c%heart({_tm})%"

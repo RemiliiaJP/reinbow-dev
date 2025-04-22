@@ -17,4 +17,5 @@ command /trio:
                 loop {_t::*}:
                     command "glow %loop-value-2% %loop-player-1% green"
                     set {_tm} to loop-value-2
+                    gamemode of {_tm} is adventure 
                     set line loop-counter-3 +4 of fastboard of loop-player-1 to "&6%{_tm}% (&c%name of {gui::%score of {_tm} for {_o}%}%&6)  &c%{_tm}'s health%♥"
