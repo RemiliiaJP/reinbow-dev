@@ -1,0 +1,19 @@
+command /casual:
+    permission: op
+    trigger:
+        player command "select-solo" 
+        set {_t} to objective with id "tier"
+        set {casual} to true
+        wait 2 tick
+#        set max health of all players to 3
+every tick:
+    {casual} is true
+    set score of all players for {_t} to 0
+on command "/end":    
+    {casual} is true
+    clear {casual}
+on level change: 
+    {casual} is true
+    level of player is not 0
+    remove every tipped arrow named "&7矢" from player
+    give level of player*2 of tipped arrow named "&7矢" to player
