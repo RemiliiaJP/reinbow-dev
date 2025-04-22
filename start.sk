@@ -664,7 +664,7 @@ every tick:
 			set line 4 of fastboard of loop-player to "&b - 能力: &6&l%name of {gui::%score of loop-player for {_o}%}% " 
 			set line 4 of fastboard of loop-player to "&b - 能力: &6闇鍋 (%name of {gui::%score of loop-player for {_o}%}%)" if loop-player has scoreboard tag "yaminabe" 
 #コンパス
-		set loop-player's compass to target to random element of text display where [entity input do not have score board tag "pin"]
+		set loop-player's compass target to random element of all text displays where [entity input do not have score board tag "pin"]
 #矢の数
 		set {_t} to objective with id "tier"
 		gamemode of loop-player is not creative
