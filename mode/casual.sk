@@ -8,7 +8,10 @@ command /casual:
 #        set max health of all players to 3
 every tick:
     {casual} is true
-    set score of all players for {_t} to 0
+    loop all players:
+        level of loop-player+level progress of loop-player > 1
+        set level of loop-player to 1
+        set level progress of loop-player to 0
 on command "/end":    
     {casual} is true
     clear {casual}
@@ -17,3 +20,8 @@ on level change:
     level of player is not 0
     remove every tipped arrow named "&7矢" from player
     give level of player*2 of tipped arrow named "&7矢" to player
+on player ready arrow:
+    {casual} is true
+    drawn arrow is tipped arrow
+    player have arrow
+    cancel event
