@@ -40,12 +40,39 @@ on inventory click:
 			player command "2teams"
 		if {menu.mode} is 6:
 			player command "april"
-		
-	else if index of event-slot is 2:
-		add 1 to {menu.mode}
-		set {menu.mode} to 0 if {menu.mode} > 6
-		admin_menu(player)
+	if index of event-slot is 2:
+		mode_menu(player)
 	if index of event-slot is 8:
 		player command "/gui"
 						
 	set slot 2 of {_gui} to bow named "ゲームモード選択"
+
+function mode_menu(p: player):
+	set {_gui} to chest inventory with 3 rows named "モードを選択"
+	set slot 0 of {_gui} to arrow named "ゲームモード選択" with lore "モード: solo"
+	set slot 9 of {_gui} to tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/solo"
+	set slot 1 of {_gui} to 2 of arrow named "ゲームモード選択" with lore "モード: duo"
+	set slot 10 of {_gui} to 2 of tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/duo"
+	set slot 18 of {_gui} to red banner named "ゲームモード選択" with lore "モード: ２チーム"
+	set slot 19 of {_gui} to spectral arrow named "ゲームモード選択" with lore "モード: エイプリルフール/solo"
+	set slot 2 of {_gui} to 3 arrow named "ゲームモード選択" with lore "モード: trio"
+	open {_gui} to {_p}
+on inventory click:
+	name of event-inventory is "モードを選択"
+	cancel event
+	event-inventory is not player's inventory
+	if index of event-slot is 0:
+		set {menu.mode} to 0
+	if index of event-slot is 1:
+		set {menu.mode} to 1
+	if index of event-slot is 2:
+		set {menu.mode} to 2
+	if index of event-slot is 9:
+		set {menu.mode} to 3
+	if index of event-slot is 10:
+		set {menu.mode} to 4
+	if index of event-slot is 18:
+		set {menu.mode} to 5
+	if index of event-slot is 19:
+		set {menu.mode} to 6
+	admin_menu(player)
