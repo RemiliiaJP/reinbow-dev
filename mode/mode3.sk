@@ -35,10 +35,11 @@ on inventory click:
 	{game} is false
 	cancel event
 	event-item is set
+	event-item is not barrier
 	event-inventory is current inventory
 	set {_o} to objective with id "ability" 
 	set score of player for {_o} to index of event-slot+1
 	set {a::%player%} to index of event-slot+1
 	set {a::%player%} to 200 if name of event-item is "転移"
-	delete {sel::%index of event-slot%}
+	set {sel::%index of event-slot+1%} to barrier
 	close player's inventory
