@@ -39,11 +39,12 @@ on damage of player:
 		add 1 to {remi::hit::%attacker%}
 command /info <offline player>:
 	trigger:
-		send "HIT:%{remi::hit::%arg%}% SHOT:%{remi::shoot::%arg%}% h/s%{remi::hit::%arg%}/{remi::shoot::%arg%}%" to player
-		send "kdr %{remi::kill::%arg%}/{remi::death::%arg%}%"
-		send "試合に参加した回数: %{remi::game::%arg%}%"
-		send "合計参加時間(死亡後込み): %{remi::playtime::%arg%}%%nl%合計生存時間: %{remi::alivetime::%arg%}%"
-		send "平均生存時間: %{remi::alivetime::%arg%}/{remi::game::%arg%}%"
+		send "&cHIT:&7%{remi::hit::%arg%}% &cSHOT:&7%{remi::shoot::%arg%}% &ch/s &7%{remi::hit::%arg%}/{remi::shoot::%arg%}%" to player
+		send "&cKILL:&7%{remi::kill::%arg%}% &cDEATH:&7%{remi::death::%arg%}% &ck/d &7%{remi::kill::%arg%}/{remi::death::%arg%}%"
+		send "&7試合に勝利した回数: &c%{remi::wins::%arg%}%"
+		send "&7試合に参加した回数: &c%{remi::game::%arg%}%"
+		send "&7合計参加時間(死亡後込み): &c%{remi::playtime::%arg%}%%nl%&7合計生存時間: &c%{remi::alivetime::%arg%}%"
+		send "&7平均生存時間: &c%{remi::alivetime::%arg%}/{remi::game::%arg%}%"
 command /leaderbord <text>:
 	trigger:
 		loop indices of {remi::%arg%::*}:

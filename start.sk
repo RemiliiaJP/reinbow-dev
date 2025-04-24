@@ -634,6 +634,8 @@ every tick:
 		command "/duo-end" 
 	if {_al} is 1:
 		{game} is true
+		loop {_al::*}:
+			add 1 to {remi::wins::%uuid of loop-value%}
 		if {mode} >= 2:
 			command "/duo-end"  
 		else:
