@@ -10,13 +10,14 @@ function admin_menu(p: player):
 	set {_gui} to chest inventory with 1 rows named "設定"
 
 	set slot 0 of {_gui} to bow named "&7ゲーム開始"
-	set slot 2 of {_gui} to arrow named "ゲームモード選択" with lore "モード: solo" if {menu.mode} is 0
-	set slot 2 of {_gui} to tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/solo" if {menu.mode} is 3
-	set slot 2 of {_gui} to 2 of arrow named "ゲームモード選択" with lore "モード: duo" if {menu.mode} is 1
-	set slot 2 of {_gui} to 2 of tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/duo" if {menu.mode} is 4
-	set slot 2 of {_gui} to red banner named "ゲームモード選択" with lore "モード: ２チーム" if {menu.mode} is 5
-	set slot 2 of {_gui} to spectral arrow named "ゲームモード選択" with lore "モード: エイプリルフール/solo" if {menu.mode} is 6
-	set slot 2 of {_gui} to 3 arrow named "ゲームモード選択" with lore "モード: trio" if {menu.mode} is 2
+	set slot 2 of {_gui} to arrow named "ゲームモード選択" with lore "モード: solo" and "%nl%&7- 能力ランダム配布%nl%&7- 一人チーム" if {menu.mode} is 0
+	set slot 2 of {_gui} to tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/solo" and "%nl%&7- 能力選択可%nl%&7- 一人チーム" if {menu.mode} is 3
+	set slot 2 of {_gui} to 2 of arrow named "ゲームモード選択" with lore "モード: duo","" and "%nl%&7- 能力ランダム配布%nl%&7- 2人チーム" if {menu.mode} is 1
+	set slot 2 of {_gui} to 2 of tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/duo" and "%nl%&7- 能力選択可%nl%&7- 2人チーム" if {menu.mode} is 4
+	set slot 2 of {_gui} to red banner named "ゲームモード選択" with lore "モード: ２チーム" and "%nl%&7- 能力ランダム配布%nl%&7- 2チーム" if {menu.mode} is 5
+	set slot 2 of {_gui} to spectral arrow named "ゲームモード選択" with lore "モード: エイプリルフール/solo" and "&7- 能力ランダム配布%nl%&7- 1人チーム%nl%&7- 能力2種類配布+切り替え可" if {menu.mode} is 6
+	set slot 2 of {_gui} to 3 arrow named "ゲームモード選択" with lore "モード: trio" and "&7- 能力ランダム配布%nl%&7- 3人チーム" if {menu.mode} is 2
+	set slot 2 of {_gui} to 1 chest named "ゲームモード選択" with lore "モード: β of casual","" and "&7- 能力選択可%nl%&7- 矢の最大数増加無効%nl%&7- 1人チーム%nl%&7- 1チャージで3本の矢" if {menu.mode} is 7
 	set slot 8 of {_gui} to chest named "能力GUIを開く"
 	open {_gui} to {_p}
 on load:
@@ -40,22 +41,23 @@ on inventory click:
 			player command "2teams"
 		if {menu.mode} is 6:
 			player command "april"
+		if {menu.mode} is 7:
+			player command "casual"
 	if index of event-slot is 2:
 		mode_menu(player)
 	if index of event-slot is 8:
 		player command "/gui"
 						
-	set slot 2 of {_gui} to bow named "ゲームモード選択"
-
 function mode_menu(p: player):
 	set {_gui} to chest inventory with 3 rows named "モードを選択"
-	set slot 0 of {_gui} to arrow named "ゲームモード選択" with lore "モード: solo"
-	set slot 9 of {_gui} to tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/solo"
-	set slot 1 of {_gui} to 2 of arrow named "ゲームモード選択" with lore "モード: duo"
-	set slot 10 of {_gui} to 2 of tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/duo"
-	set slot 18 of {_gui} to red banner named "ゲームモード選択" with lore "モード: ２チーム"
-	set slot 19 of {_gui} to spectral arrow named "ゲームモード選択" with lore "モード: エイプリルフール/solo"
-	set slot 2 of {_gui} to 3 arrow named "ゲームモード選択" with lore "モード: trio"
+	set slot 0 of {_gui} to arrow named "ゲームモード選択" with lore "モード: solo","" and "&7- 能力ランダム配布%nl%&7- 一人チーム"
+	set slot 9 of {_gui} to tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/solo","" and "&7- 能力選択可%nl%&7- 一人チーム"
+	set slot 1 of {_gui} to 2 of arrow named "ゲームモード選択" with lore "モード: duo","" and "&7- 能力ランダム配布%nl%&7- 2人チーム"
+	set slot 10 of {_gui} to 2 of tipped arrow named "ゲームモード選択" with lore "モード: 自由選択/duo","" and "&7- 能力選択可%nl%&7- 2人チーム"
+	set slot 18 of {_gui} to red banner named "ゲームモード選択" with lore "モード: ２チーム","" and "&7- 能力ランダム配布%nl%&7- 2チーム"
+	set slot 19 of {_gui} to spectral arrow named "ゲームモード選択" with lore "モード: エイプリルフール/solo","" and "&7- 能力ランダム配布%nl%&7- 1人チーム%nl%&7- 能力2種類配布+切り替え可" 
+	set slot 2 of {_gui} to 3 arrow named "ゲームモード選択" with lore "モード: trio","" and "&7- 能力ランダム配布%nl%&7- 3人チーム"
+	set slot 20 of {_gui} to 1 chest named "ゲームモード選択" with lore "モード: β of casual","" and "&7- 能力選択可%nl%&7- 矢の最大数増加無効%nl%&7- 1人チーム%nl%&7- 1チャージで3本の矢"
 	open {_gui} to {_p}
 on inventory click:
 	name of event-inventory is "モードを選択"
@@ -75,4 +77,6 @@ on inventory click:
 		set {menu.mode} to 5
 	if index of event-slot is 19:
 		set {menu.mode} to 6
+	if index of event-slot is 20:
+		set {menu.mode} to 7
 	admin_menu(player)
