@@ -59,6 +59,7 @@ command /gui:
         set {gui::49} to spider eye named "暗殺" with lore "&e「暗殺」は、指定された対象を殺し、報酬を受け取る事が出来る能力。%nl%&f60秒に一回対象が暗殺の指定される。%nl%&f指定された対象は自分からは光って見える&f%nl%&f殺害すると暗殺報酬アイテムが手に入り、使用すると報酬が手に入る%nl%%nl%&7操作%nl%&7 [右クリック(暗殺報酬)] - 報酬画面を開く"
         set {gui::200} to ender pearl named "転移" with lore "&e「転移」は、自身の好きな場所へテレポートすることができる能力。%nl%&f弓を投げて能力を使用すると、自分の飛ばした矢にテレポートすることができる。%nl%%nl%&7操作%nl%&7 [投げる(弓)] - 飛ばした矢へテレポートする"
         set {gui::50} to lightning rod named "雷撃" with lore "&e 「雷撃」は自身の放つ矢を バフや罠に変える事が出来る能力。%nl%&fスニークしながら射撃すると雷撃矢を放つことが出来る%nl%&f雷撃矢は放ってから暫くすると 空中に留まる%nl%&f雷撃矢の下を敵が通過すると落下し、着弾すると落雷し狭い範囲にダメージを与える%nl%&fまた、留まっている雷撃矢の近くに居ると本数に応じて様々なバフが付く%nl%%nl%&7操作%nl%&7 [SHIFT] しながら [射撃] - 雷撃矢を発射%nl%&7 [投げる(弓)] - 留まっている雷撃矢を一斉に落とす"
+        set {gui::51} to magma block named "蓄力" with lore "&e 「蓄力」はパワーを蓄積し火力に変える事が出来る能力。%nl%&f矢を当てる: +0.025%nl%&fポーションを飲む: +0.025%nl%&fキルする: +0.1%nl%&f1&c♥&f: +0.1"
         loop {gui::*}:
             index of loop-value is not 200
             set slot loop-counter - 1 of player's current inventory to loop-value

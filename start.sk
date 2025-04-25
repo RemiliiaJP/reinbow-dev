@@ -6,6 +6,7 @@ command /start:
 		disallow flight to all players
 		set {NoTD::*} to 0
 		clear {death::*}
+		clear {pot::*}
 		command "/scoreboard players reset @a ArrowHit"
 		command "/scoreboard players set @a tier 0"
 		loop all players:
@@ -429,7 +430,7 @@ on damage of player:
 	set {_t} to objective with id "tier"
 	if damage type of damage source = arrow:
 		victim's health is not 1 ,0.5 or 0
-		add 0.5 to score of victim for {_t}
+		add 2 to score of victim for {_t}
 		give tipped arrow to victim
 
 #解放
@@ -1009,3 +1010,19 @@ function dot_(n: number) :: text:
 			return "%{_n::1}%.%{_n::2}%0"
 		else:
 			return "%{_n}%"
+damage of player:
+	set {_o} to objective with id "ability"
+	score of attacker for {_o} is 51
+	attacker is not victim
+	damage is not 0
+	damage type of damage source = arrow
+	set {_t} to objective with id "tier"
+	add (score of attacker for {_t}*0.05)+(max health of attacker*0.1)+({pot::%attacker%}*0.05) to damage
+on consume of potion:
+	add 1 to {pot::%player%}
+every 5 tick:
+	set {_o} to objective with id "ability"
+	set {_t} to objective with id "tier"
+	loop all players:
+		score of loop-player for {_o} is 51
+		send action bar "能力: 蓄力 常時発動 [+%(score of loop-player for {_t}*0.025)+(max health of loop-player*0.1)+({pot::%loop-player%}*0.025)%ダメージ]" to loop-player
