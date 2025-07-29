@@ -1037,31 +1037,6 @@ damage of player:
 	set {_t} to objective with id "tier"
 	add (health of attacker*0.1)+({pot::%attacker%}*0.05) to damage
 
-on drop:
-	event-item is bow
-	set {_o} to objective with id "ability"
-	score of player for {_o} is 52
-#	ability_use(player, false) is -1
-	set {_s} to player
-	set {_d} to a custom damage source:
-		set the damage type to generic
-		set the direct entity to {_s}
-	set {_e} to player's targeted player
-	set {_e} to player's targeted block if {_e} is not set
-	set {_e} to player's targeted block if distance between {_e} and player >= 15
-	set {_e} to player ~ vector in direction of player*15 if {_e} is not set
-	if distance between {_e} and player >= 15:
-		set {_e} to player ~ vector in direction of player*15
-	set {_r} to cylindrical vector radius 1, yaw (random integer between -180 and 180), height 3
-	set {_r} to player ~ {_r}
-	play sound "entity.firework_rocket.blast" with pitch 0 at player to all players
-	loop distance between {_r} and {_e}*5 time:
-		set {_v} to normalized vector of {_r}-vector of {_e}
-		set {_v} to {_v}*loop-counter/5
-		set {_v} to {_e} ~ {_v} 
-		play crit at {_v}
-	damage {_e} by 0.5 using {_d}
-
 on consume of potion:
 	add 1 to {pot::%player%}
 every 5 tick:
