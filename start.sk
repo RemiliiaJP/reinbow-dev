@@ -1,3 +1,4 @@
+using damage source
 #スタート
 command /start:
 	permission: skript.admin
@@ -86,6 +87,7 @@ command /end:
 		set {game} to false
 		set {mode} to 0
 
+
 #ダメージ固定
 on damage:
 	if damage was caused by projectile:
@@ -112,6 +114,8 @@ on damage:
 		set damage to 100
 	if damage was caused by world border:
 		set damage to 0.1
+	if gamemode of victim is spectator:
+		cancel event
 on damage of player:
 	attacker is victim
 	cancel event
@@ -223,14 +227,14 @@ on player drop of an bow:
 			make 12 of cherry_leaves at {_l} with delta vector(1,5,1) with extra 0.2 for all players
 			teleport loop-value-2 to {_l}
 			loop all players in radius 8 meter around {_p}:
-				loop-player is not player
+				loop-player-1 is not player
 				if {mode} is 2, 3 or 4:
-					team of player is not team of loop-player
-					effect(loop-player, slowness, 6, 100 tick)
-					effect(loop-player, nausea, 6, 100 tick)
+					team of player is not team of loop-player-1
+					effect(loop-player-1, slowness, 6, 100 tick)
+					effect(loop-player-1, nausea, 6, 100 tick)
 				else:
-					effect(loop-player, slowness, 6, 100 tick)
-					effect(loop-player, nausea, 6, 100 tick)
+					effect(loop-player-1, slowness, 6, 100 tick)
+					effect(loop-player-1, nausea, 6, 100 tick)
 		wait 1 tick
 	make 12 of cherry_leaves at {_t::*} with delta vector(1,1,1) with extra 0.2 for all players
 	loop {_t::*}:
@@ -264,22 +268,29 @@ on death of player:
 function set_projectile_speed(e: entity, s: number):
 	set {_e}'s velocity to {_e}'s velocity * {_s}
 on shoot:
+	cancel event if gamemode of shooter is spectator
 	set {_o} to objective with id "ability"
 	score of shooter for {_o} is 9
 	shooter is sneaking
 #	reset velocity of projectile
 	add "gravity" to scoreboard tags of projectile
-	set {_ray} to ray trace from shooter with max distance 888 with ray size 0.5 while ignoring passable blocks while ignoring all players where [gamemode of player input is not survival or adventure] and all entities where [distance between shooter and entity input <= 15] if {mode} is 0 or 1
-	set {_ray} to ray trace from shooter with max distance 888 with ray size 0.5 while ignoring passable blocks while ignoring all players where [gamemode of player input is not survival or adventure] and all entities where [distance between shooter and entity input <= 15] and teams(shooter) if {mode} is 2 , 3 or 4
+	#set {_ray} to ray trace from shooter with max distance 888 with ray size 0.5 while ignoring passable blocks while ignoring all players where [gamemode of player input is not survival or adventure] and all entities where [distance between shooter and entity input <= 15] if {mode} is 0 or 1
+	set {_ray} to shooter's targeted player
+	set {_rayb} to target block of shooter
 	set {_a} to projectile
-	play sound "entity.generic.explode" to shooter if {_ray} is set
-	set {_d} to damage source from arrow directly by shooter
-	damage raytrace hit entity of {_ray} by 1 with {_d}
-	delete projectile if hit location of {_ray} is not set
-	delete projectile if raytrace hit entity of {_ray} is set
-	teleport {_a} to hit location of {_ray} if raytrace hit entity of {_ray} is not set
-	set {_d} to distance between hit entity of {_ray} and shooter 
-	set {_d} to distance between hit location of {_ray} and shooter if raytrace hit entity of {_ray} is not set
+	set {_s} to shooter
+	distance between shooter and {_ray} >= 15
+	play sound "entity.generic.explode" to shooter
+	set {_d} to a custom damage source:
+		set the damage type to arrow
+		set the causing entity to {_s}
+		set the direct entity to {_a}
+	damage {_ray} by 1 using {_d}
+	delete projectile if {_rayb} is not set
+	delete projectile if {_ray} is set
+	teleport {_a} to {_rayb} if {_ray} is not set
+	set {_d} to distance between {_ray} and shooter 
+	set {_d} to distance between {_rayb} and shooter if {_ray} is not set
 	loop {_d}*5 times:
 		set {_v} to vector in direction of shooter * loop-number /5
 		add vector 0, 1, 0 to {_v}
@@ -350,13 +361,17 @@ on player drop of an bow:
 	set {_o} to objective with id "ability"
 	score of player for {_o} is 30
 	ability_use(player, false) is -1
-	spawn villager at player:
-		add nbt from "{VillagerData:{profession:""minecraft:nitwit""},Offers:{Recipes:[{}]}}" to nbt of villager
-
-	set {_e} to last spawned villager
+	spawn vindicator at player
+	set {_e} to last spawned vindicator
+	effect({_e}, invisibility, 1, 1241341 second)
+	set {_e}'s ai to false
+	make {_e} silent
+	equip {_e} with player's skull
+	set {_e}'s chestplate to player's skull
 	add {_e} to {a30::%player%::*}
 	add {_e} to {target::%player%::*}
 	execute console command "/disguuid %uuid of {_e}% Player %name of player% setNameVisible false setItemInMainHand bow setSprinting true"
+	set {_e}'s scale attribute to 0.9
 	set pitch of {_e} to pitch of player
 	set health of {_e} to 1
 	push {_e} horizontally forward
@@ -386,15 +401,15 @@ on player drop of an bow:
 		wait 1 tick	
 		set pitch of {_e} to {_p}
 		set yaw of {_e} to {_y}
-		teleport {_e} to {_l::%loop-counter%}
+		teleport {_e} 0.15 meter above {_l::%loop-counter%}
 		if gamemode of player is spectator:
 			kill {_e}
 		if player is not online:
 			kill {_e}
 		
 	remove {_e} from {a30::%player%::*}
-on damage of villager:
-	if attacker is villager:
+on damage of vindicator:
+	if attacker is vindicator:
 		cancel event
 	attacker is player
 	delete victim
@@ -421,7 +436,7 @@ on entity shoot bow:
 			wait second
 			add 1 to {_a} 
 		loop-value is alive
-		shoot projectile entity from loop-value at speed bow force
+		shoot projectile entity from loop-value at speed bow force*3
 
 #吸収
 on damage of player:
@@ -575,6 +590,7 @@ on damage:
 	send title "&e⚠ &c緊急脱出 &e⚠" to victim
 	wait tick
 	equip victim with elytra
+	
 	push victim upwards at speed 5
 	set gliding of victim to true
 	wait 5 tick
@@ -628,12 +644,14 @@ on damage:
 every tick:
 	set arrows stuck in all players to 0
 	set {_o} to objective with id "ability"
-	set {_al::*} to all players where [gamemode of player input is adventure]
+	set {_al::*} to all players where [gamemode of input is adventure]
 	set {_al} to size of {_al::*}
 	if {mode} >= 2:
+		{dev} is not true
 		teams(first element of {_al::*}) is {_al::*} where [input is not first element of {_al::*}]
 		command "/duo-end" 
 	if {_al} is 1:
+		{dev} is not true
 		{game} is true
 		loop {_al::*}:
 			add 1 to {remi::wins::%uuid of loop-value%}
@@ -771,7 +789,7 @@ on entity shoot bow:
 	add "control" to scoreboard tags of projectile
 	add projectile to team named "LD_Color_5"
 	set glowing of projectile to on
-	set {_velocity} to shot force*0.05
+	set {_velocity} to shot force*0.8
 	do while projectile is alive:
 		set {_v} to vector in direction of shooter*5
 		set projectile's velocity to {_v}*{_velocity}
@@ -822,10 +840,10 @@ on drop of bow:
 		wait 3 tick
 	loop {_l::*}:
 		loop all blocks in radius 2 around loop-value:
-			loop-block is air
-			make player see loop-block as air
-			make {_t::*} see loop-block as air if {mode} is 2, 3 or 4
-		wait tick if random integer between 2 to 0 is 0
+			loop-block-2 is air
+			make player see loop-block-2 as air
+			make {_t::*} see loop-block-2 as air if {mode} is 2, 3 or 4
+		wait 1 tick # if random integer between 1 to 0 is 0
 on right click:
 	gamemode of player is spectator
 	gamemode of targeted entity of player is adventure
@@ -965,7 +983,7 @@ on damage:
 	set {_o} to objective with id "ability"
 	score of victim for {_o} is 32
 	ability_use(victim, false) is -1
-	set damage to 0.5	
+	set damage to damage*0.5
 every tick:
 	set {_o} to objective with id "ability"
 	loop all players:
@@ -1017,7 +1035,33 @@ damage of player:
 	damage is not 0
 	damage type of damage source = arrow
 	set {_t} to objective with id "tier"
-	add (score of attacker for {_t}*0.05)+(max health of attacker*0.1)+({pot::%attacker%}*0.05) to damage
+	add (health of attacker*0.1)+({pot::%attacker%}*0.05) to damage
+
+on drop:
+	event-item is bow
+	set {_o} to objective with id "ability"
+	score of player for {_o} is 52
+#	ability_use(player, false) is -1
+	set {_s} to player
+	set {_d} to a custom damage source:
+		set the damage type to generic
+		set the direct entity to {_s}
+	set {_e} to player's targeted player
+	set {_e} to player's targeted block if {_e} is not set
+	set {_e} to player's targeted block if distance between {_e} and player >= 15
+	set {_e} to player ~ vector in direction of player*15 if {_e} is not set
+	if distance between {_e} and player >= 15:
+		set {_e} to player ~ vector in direction of player*15
+	set {_r} to cylindrical vector radius 1, yaw (random integer between -180 and 180), height 3
+	set {_r} to player ~ {_r}
+	play sound "entity.firework_rocket.blast" with pitch 0 at player to all players
+	loop distance between {_r} and {_e}*5 time:
+		set {_v} to normalized vector of {_r}-vector of {_e}
+		set {_v} to {_v}*loop-counter/5
+		set {_v} to {_e} ~ {_v} 
+		play crit at {_v}
+	damage {_e} by 0.5 using {_d}
+
 on consume of potion:
 	add 1 to {pot::%player%}
 every 5 tick:
@@ -1025,4 +1069,5 @@ every 5 tick:
 	set {_t} to objective with id "tier"
 	loop all players:
 		score of loop-player for {_o} is 51
-		send action bar "能力: 蓄力 常時発動 [+%(score of loop-player for {_t}*0.025)+(max health of loop-player*0.1)+({pot::%loop-player%}*0.025)%ダメージ]" to loop-player
+		send action bar "能力: 蓄力 常時発動 [+%(health of loop-player*0.1)+({pot::%loop-player%}*0.025)%ダメージ]" to loop-player
+		
