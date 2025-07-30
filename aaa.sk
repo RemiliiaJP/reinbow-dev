@@ -1,3 +1,6 @@
 on command "/arrow":
     player's permissions do not contain "skript.admin"
     cancel event
+on command "/bouncy:arrow":
+    player's permissions do not contain "skript.admin"
+    cancel event
