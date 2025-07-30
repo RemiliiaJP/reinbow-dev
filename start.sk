@@ -108,9 +108,7 @@ on damage:
 		set damage to 0
 	if attacker is husk:
 		set damage to 0.5
-	if damage was caused by projectile:
-		victim is husk
-		projectile is arrow or spectral arrow
+	if victim is husk:
 		set damage to 100
 	if damage was caused by world border:
 		set damage to 0.1
@@ -205,6 +203,33 @@ on player drop of an bow:
 		set {_v} to vector in direction of player
 		shoot arrow from player at speed (random number between 0.5 and 2) {_v}
 		wait 3 tick
+
+on player drop of an bow:
+	set {_o} to objective with id "ability"
+	score of player for {_o} is 21
+	ability_use(player, false) is -1
+	shoot snowball from player at speed 1
+	set {_p} to last shot snowball
+	play sound "item.trident.riptide_3" at player to all players
+	do while {_p} is alive:
+		wait tick
+		set {_center} to {_p}'s location
+	loop 15 time:
+		play sound "entity.arrow.shoot" at {_center} to all players
+		set {_t::*} to all players in radius 7 around {_center} where [input is not player]
+		damage {_t::*} by 0.1
+		set {_t::*}'s no damage tick to 6
+		loop 90 time:
+			set {_l} to {_p} offset by cylindrical vector radius 7, yaw (random integer between -180 and 180), height 0.1
+			draw 1 of dust using dustOption(red, 1) at {_l} with extra 127 with force
+		loop 5 time:
+			set {_rd} to (random integer between 7 to 1)
+			set {_y} to (random integer between -180 and 180)
+			loop 10 time:
+				set {_r} to {_p} offset by cylindrical vector radius {_rd}, yaw {_y}, height 1
+				set {_v} to (vector from upwards)*loop-counter-3
+				play crit {_v} {_r} to all players
+		wait 0.3 second
 #小転移
 on player drop of an bow:
 	set {_o} to objective with id "ability"
@@ -227,14 +252,14 @@ on player drop of an bow:
 			make 12 of cherry_leaves at {_l} with delta vector(1,5,1) with extra 0.2 for all players
 			teleport loop-value-2 to {_l}
 			loop all players in radius 8 meter around {_p}:
-				loop-player-1 is not player
+				loop-player-2 is not player
 				if {mode} is 2, 3 or 4:
 					team of player is not team of loop-player-1
-					effect(loop-player-1, slowness, 6, 100 tick)
-					effect(loop-player-1, nausea, 6, 100 tick)
+					effect(loop-player-2, slowness, 6, 100 tick)
+					effect(loop-player-2, nausea, 6, 100 tick)
 				else:
-					effect(loop-player-1, slowness, 6, 100 tick)
-					effect(loop-player-1, nausea, 6, 100 tick)
+					effect(loop-player-2, slowness, 6, 100 tick)
+					effect(loop-player-2, nausea, 6, 100 tick)
 		wait 1 tick
 	make 12 of cherry_leaves at {_t::*} with delta vector(1,1,1) with extra 0.2 for all players
 	loop {_t::*}:
@@ -279,18 +304,20 @@ on shoot:
 	set {_rayb} to target block of shooter
 	set {_a} to projectile
 	set {_s} to shooter
-	distance between shooter and {_ray} >= 15
 	play sound "entity.generic.explode" to shooter
-	set {_d} to a custom damage source:
-		set the damage type to arrow
-		set the causing entity to {_s}
-		set the direct entity to {_a}
-	damage {_ray} by 1 using {_d}
+	if {_ray} is set:
+		distance between shooter and {_ray} >= 15
+		set {_d} to a custom damage source:
+			set the damage type to arrow
+			set the causing entity to {_s}
+			set the direct entity to {_a}
+		damage {_ray} by 1 using {_d}
 	delete projectile if {_rayb} is not set
 	delete projectile if {_ray} is set
 	teleport {_a} to {_rayb} if {_ray} is not set
 	set {_d} to distance between {_ray} and shooter 
 	set {_d} to distance between {_rayb} and shooter if {_ray} is not set
+	set {_d} to distance between {_rayb} and shooter if distance between shooter and {_ray} >= 15
 	loop {_d}*5 times:
 		set {_v} to vector in direction of shooter * loop-number /5
 		add vector 0, 1, 0 to {_v}
@@ -363,7 +390,7 @@ on player drop of an bow:
 	ability_use(player, false) is -1
 	spawn vindicator at player
 	set {_e} to last spawned vindicator
-	effect({_e}, invisibility, 1, 1241341 second)
+	make {_e} not visible
 	set {_e}'s ai to false
 	make {_e} silent
 	equip {_e} with player's skull
@@ -519,7 +546,7 @@ left click:
 	score of player for {_o} is 35
 	ability_use(player, false) is -1
 	set {_l} to level of player
-	shoot arrow from player
+	shoot arrow from player at speed 2
 	set level of player to {_l}
 #召喚
 on player drop of an bow:
@@ -608,22 +635,18 @@ on player drop of an bow:
 	score of player for {_o} is 40
 	ability_use(player, false) is -1
 	set {_v} to vector in direction of player
-	if player is not sneaking:
-		set {_s} to false
-
-	else:
-		set {_s} to true
+	set {_s} to true if player is sneaking
 	loop 150 time:
 		set {_t::*} to player if {_s} is true
-		set {_t::*} to all players in radius 16 meter around player where [gamemode of player input is adventure or survival] if {_s} is false
-		remove all player from {_t::*} if {_s} is false
+		set {_t::*} to all players in radius 16 meter around player if {_s} is not set
+		remove all player from {_t::*} if {_s} is not set
 		if {mode} is 2, 3 or 4:
-			remove all players where [team of player input is team of player] from {_t::*} if {_s} is false
+			remove all players where [team of player input is team of player] from {_t::*} if {_s} is not set
 		set {_t::*}'s velocity to {_v} * 0.25
 		wait tick
 		loop 20 times:
 			set {_l} to player offset by spherical vector radius 16, yaw random integer between -180 to 180, pitch random integer between -90 to 90
-			make 1 of witch at {_l} with force if {_s} is false
+			make 1 of witch at {_l} with force if {_s} is not set
 #跳弾   
 on projectile hit:
 	projectile has scoreboard tag "bouncy"
@@ -876,74 +899,16 @@ on rightclick:
 		give beacon named "手に持ってスニークで蘇生" to player
 		stop
 
-on sneak toggle:
-	tool of player is bow
-	player is not sneaking
-	gamemode of player is adventure
-	set {_o} to objective with id "ability"
-	score of player for {_o} is 21
-	tool is bow
-	metadata value "anchor" of player is not alive
-	level of player >= 1
-	reduce player's level by 1
-	kill metadata value "anchor" of player
-	shoot arrow from player at speed 10
-	play sound "entity.arrow.shoot"
-	set {_p} to last shot projectile
-	add "b" to scoreboard tags of {_p}
-	set glowing of {_p} to true
-	set metadata value "anchor" of player to {_p}
-	wait tick
-	while hit block of {_p} is not set:
-		add abs(y of {_p}'s velocity)*-1*0.2 to y of {_p}'s velocity
-		add (x of {_p}'s velocity)*-1*0.15 to x of {_p}'s velocity
-		add (z of {_p}'s velocity)*-1*0.15 to z of {_p}'s velocity
-		wait tick
-	do while player is not sneaking:
-		wait tick
-	do while player is sneaking:
-		wait tick	
-		play sound "item.crossbow.quick_charge_3" to player
-		set {_p} to metadata value "anchor" of player
-		push player (vector from player to {_p}) at speed 0.1
-		push player upward at speed 0.05
-		loop distance between player and {_p} time:
-			set {_v} to normalized vector of {_p}-vector of Player
-			set {_v} to {_v}*loop-counter-2
-			play enchanted hit {_v} player
-		if players in radius 2 meter of {_p} where [player input is player] is set:
-			stop loop
-		if {_p} is not alive:
-			stop loop
-		if loop-counter >= 120:
-			stop loop	
-		if tool of player is not bow:
-			stop loop
-		if player is not sneaking:
-			stop loop
-	play sound "entity.wither.shoot" with pitch 2
-	push player (vector from player to {_p}) at speed 1
-	effect(player, levitation, 1 , 0.7 second)
-	clear metadata value "anchor" of player
-	kill {_p}
-projectile hit:
-	projectile is metadata value "anchor" of shooter
-	if victim is set:
-		cancel event
-	else:
-		play sound "entity.ender_dragon.hurt" to shooter
-		wait 2 tick
-		command "disguuid %uuid of projectile% arrow"
-		command "undisguuid %uuid of projectile%"
+
 function ability_use(p: player, get: boolean=true) :: number:
 	set {_o} to objective with id "ability"
 	if score of {_p} for {_o} is 14:
-		set {_ct} to 500
+		set {_ct} to 400
 	if score of {_p} for {_o} is 19:
 		set {_ct} to 300
 	if score of {_p} for {_o} is 23:
 		set {_ct} to 650
-		
+	
 	if score of {_p} for {_o} is 30:
 		set {_ct} to 350
 	if score of {_p} for {_o} is 32:
@@ -957,6 +922,8 @@ function ability_use(p: player, get: boolean=true) :: number:
 		set {_ct} to 600
 	if score of {_p} for {_o} is 18:
 		set {_ct} to 300
+	if score of {_p} for {_o} is 21:
+		set {_ct} to 444
 
 	set {_o} to objective with id "ability_ct"
 	if {_get} is false:
@@ -973,7 +940,7 @@ on drop:
 	score of player for {_o} is 19
 	ability_use(player, false) is -1
 	play sound "item.crossbow.loading_end" to all players at player 
-	set tool of player to unbreakable crossbow of quick charge 3 if event-item is bow
+	set tool of player to unbreakable crossbow of quick charge 5 and piercing 1 if event-item is bow
 	set tool of player to unbreakable bow if event-item is type of crossbow
 	add 1 to level of player
 	if level progress of player+ level of player >= 3:
@@ -996,8 +963,6 @@ every tick:
 			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% 自動発動" to loop-player
 		if score of loop-player for {_o} is 38:
 			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% ダメージを受ける時にスニークしていると発動" to loop-player
-		if score of loop-player for {_o} is 21:
-			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% 経験値1以上の時弓を持った状態でスニークで発動" to loop-player
 		if score of loop-player for {_o} is 20 , 43 or 9:
 			send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% 自動発動" to loop-player
 		if score of loop-player for {_o} is 32:
@@ -1012,7 +977,7 @@ every tick:
 	set {_o} to objective with id "ability"
 	set {_ct} to objective with id "ability_ct"
 	loop all players:
-		score of loop-player for {_o} is 14,19,23,30,35,40,44 or 18
+		score of loop-player for {_o} is 14,19,23,30,35,40,44,21 or 18
 		set {_cd} to score of loop-player for {_ct} / 20
 		send action bar "能力:%name of {gui::%score of loop-player for {_o}%}% %dot_({_cd})%秒（%dot_(ability_use(loop-player) / 20)%秒で使用可能）" to loop-player
 		ability_use(loop-player)-score of loop-player for {_ct} <= 0
