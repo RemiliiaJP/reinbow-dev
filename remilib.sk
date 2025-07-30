@@ -1,4 +1,4 @@
-function effect(target: entity, p: potion effect type, tier: number=0, time: time span=0 tick):
+function effect(target: player, p: potion effect type, tier: number=0, time: time span=0 tick):
 		add potion effect of {_p} of tier {_tier} without particles for {_time} to potion effects of {_target}
 command /skr <text=yumikoku.sk>:
 	permission: player
@@ -116,3 +116,7 @@ on player move:
 on jump:
 	player's y coord >= 175
 	force teleport player 175-player's y coord meter upward player
+command /skull <Offline Player>:
+	permission: op
+	trigger:
+		give arg's skull to player

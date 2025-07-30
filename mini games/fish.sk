@@ -1,0 +1,50 @@
+function fishing(p: player, c: number=7):
+	set metadata value "fish" of {_p} to true
+	loop {_c} time:
+		if random integer between 1 to 0 is 0:
+			add "&cL " to {_combo::*}
+		else:
+			add "&bR " to {_combo::*}
+	set {_time} to now
+	while {_combo::*} is set:
+		
+		wait tick
+		send title join {_combo::*} to {_p} with fadein 0 tick and fadeout 0 tick
+		if first element of {_combo::*} contains "L":
+			metadata value "left" of {_p} is true
+			play sound "ui.button.click" with volume 0.5 and pitch 1 at {_p} to all players
+			remove first element of {_combo::*} from {_combo::*}
+			send title "" to {_p}
+		if first element of {_combo::*} contains "R":
+			metadata value "right" of {_p} is true
+			play sound "ui.button.click" with volume 0.5 and pitch 1 at {_p} to all players
+			remove first element of {_combo::*} from {_combo::*}
+			send title "" to {_p}
+#		if {_p}'s tool and {_p}'s offhand tool is not fishing rod:
+#			stop loop
+	clear metadata value "fish" of {_p}
+	send "%difference between {_time} and now%" to {_p}
+on left click:
+	set metadata value "left" of player to true
+	wait tick
+	clear metadata value "left" of player
+on right click:
+	set metadata value "right" of player to true
+	wait tick
+	clear metadata value "right" of player
+on join:
+	clear metadata value "fish" of player
+on fish bite:
+	metadata value "fish" of player is not true
+	fishing(player)
+on right click:
+	metadata value "fish" of player is true
+	cancel event
+on fishing line cast:
+    set min fish waiting time to 0 seconds
+    set max fishing waiting time to 5 seconds 
+ 
+command /fisher <number>:
+	trigger:
+		fishing(player, arg-1)
+    

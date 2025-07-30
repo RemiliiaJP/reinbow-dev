@@ -1,0 +1,9 @@
+command /bot:
+	permission: op
+	trigger:
+		spawnbots(player)
+function spawnbots(l: location):
+	spawn stray at {_l}
+	set {_a} to last spawned stray
+	set ai of {_a} to off
+	add "bot" to scoreboard tags of {_a}

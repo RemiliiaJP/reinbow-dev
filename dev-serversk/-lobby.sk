@@ -1,3 +1,0 @@
-on entity added to world:
-	event-entity has scoreboard tag "lobby"
-	command "/disguuid %uuid of event-entity% Player dotchan setName &6&lクリックして setPitchLock 0 setYawLock 180"

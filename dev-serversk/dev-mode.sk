@@ -7,6 +7,7 @@ every 1 tick:
 on death:
 	set gamemode of victim to spectator
 command /sandback:
+	permission: op
 	trigger:
 		spawn stray at player:
 			set ai of stray to false
@@ -33,6 +34,7 @@ on damage of stray:
 		execute console command "scoreboard players add %shooter% tier 1"
 		
 command /mevsme:
+    permission: op
     trigger:
         teleport player at location(15, 250, 0)
         set pitch of player to 0
@@ -70,3 +72,10 @@ on entity shoot bow:
 		shoot projectile entity from loop-value at speed bow force
 function locc(l: location) :: location:
     return location(x coordinate of {_l}*-1, y coordinate of {_l}, z coordinate of {_l}*-1 )
+command /dev:
+	permission: op
+	trigger:
+		player command "start"
+		set {dev} to true
+on command "/end":
+	clear {dev}
