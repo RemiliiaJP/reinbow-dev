@@ -12,12 +12,12 @@ function fishing(p: player, c: number=7):
 		send title join {_combo::*} to {_p} with fadein 0 tick and fadeout 0 tick
 		if first element of {_combo::*} contains "L":
 			metadata value "left" of {_p} is true
-			play sound "ui.button.click" with volume 0.5 and pitch 1 at {_p} to all players
+			play sound "ui.button.click" with volume 0.5 and pitch 1 at {_p} to {_p} 
 			remove first element of {_combo::*} from {_combo::*}
 			send title "" to {_p}
 		if first element of {_combo::*} contains "R":
 			metadata value "right" of {_p} is true
-			play sound "ui.button.click" with volume 0.5 and pitch 1 at {_p} to all players
+			play sound "ui.button.click" with volume 0.5 and pitch 1 at {_p} to {_p} 
 			remove first element of {_combo::*} from {_combo::*}
 			send title "" to {_p}
 #		if {_p}'s tool and {_p}'s offhand tool is not fishing rod:
