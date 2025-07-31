@@ -1,9 +1,13 @@
-every 1 tick:
+every tick:
+	{dev} is true
 	set {_o} to objective with id "ability_ct"
 	set {_o2} to objective with id "ability2_ct"
+	set {_o3} to objective with id "ability"
+	set {_o4} to objective with id "ability2"
 	loop all players:
 		set line 8 of fastboard of loop-player to "mode: %{mode}% game: %{game}%"
-		set line 9 of fastboard of loop-player to "ct: %score of loop-player for {_o}% ct: %score of loop-player for {_o2}% %{safe}%"
+		set line 9 of fastboard of loop-player to "表: %{_o3}% 裏: %{_o4}%"
+		set line 10 of fastboard of loop-player to "ct: %score of loop-player for {_o}% ct: %score of loop-player for {_o2}% %{safe}%"
 on death:
 	set gamemode of victim to spectator
 command /sandback:
@@ -12,7 +16,7 @@ command /sandback:
 		spawn stray at player:
 			set ai of stray to false
 			set {_s} to stray
-			command "/disguuid %uuid of stray% Player miyabichan0 setArrowsSticking 0 setHealth %health of stray% setName sandbag setTablistName sandbag"
+			command "/disguuid %uuid of stray% Player dotchan setArrowsSticking 0 setHealth %health of stray% setName sandbag setTablistName sandbag"
 		do while {_s} is alive:
 			wait tick
 			loop all players in radius 1.5 meter around {_s}:
@@ -75,7 +79,9 @@ function locc(l: location) :: location:
 command /dev:
 	permission: op
 	trigger:
-		player command "start"
-		set {dev} to true
-on command "/end":
-	clear {dev}
+		if {dev} is not set:
+			set {dev} to true
+			broadcast "&a&lデバッグモード：有効"
+		else:
+			clear {dev}
+			broadcast "&c&lデバッグモード：無効"
