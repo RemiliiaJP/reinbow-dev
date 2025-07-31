@@ -5,43 +5,24 @@ command /select-solo:
 		set gamemode of all players to adventure
 		set {mode} to 1
 		set {_o} to objective with id "ability"
-		set score of all players for {_o} to 0
-		set {_gui} to chest inventory with 6 rows named "&l能力選択 (15.00)秒後に自動開始"
+		set {_g} to chest inventory with 6 row named "&a&lGUIMENU"
 		set {sel::*} to {gui::*}
-		open {_gui} to all players
-		loop 15*20 time:
-			if loop-counter is 1:
-				set {_gui} to chest inventory with 6 rows named "&l能力選択 (%dot_(15-(loop-counter-1/20))%)秒後に自動開始"
-				open {_gui} to all players 
+		loop {gui::*}:
+			index of loop-value is not 200
+			set slot loop-counter - 1 of {_g} to loop-value
+            
+		loop 15*20 time: 
 			wait tick
 			loop all players:
 				{game} is false
-				score of loop-player for {_o} is 0
-				loop-player's current inventory is not chest inventory
-				set {_gui} to chest inventory with 6 rows named "&l能力選択 (%dot_(15-(loop-counter-1/20))%)秒後に自動開始"
-				open {_gui} to loop-player
-			set all players's current inventory to {sel::*}
+				set {_a::%loop-player%} to score of loop-player for {_o} 
+				loop-player's current inventory is not {_g}
+				open {_g} to loop-player
 		command "/start"
-		close all players's inventory
 		wait 2 tick
-		set {_o} to objective with id "ability"
 		loop all players:
-			if {a::%loop-player%} is not set:
-				set {_} to random element of indices of {sel::*} parsed as number
-				set score of loop-player for {_o} to {_}
-				remove {_} from {sel::*}
-			else:
-				set score of loop-player for {_o} to {a::%loop-player%}
-on inventory click:
-	{mode} is 1
-	{game} is false
-	cancel event
-	event-item is set
-	event-item is not barrier
-	event-inventory is current inventory
-	set {_o} to objective with id "ability" 
-	set score of player for {_o} to index of event-slot+1
-	set {a::%player%} to index of event-slot+1
-	set {a::%player%} to 200 if name of event-item is "転移"
-	set {sel::%index of event-slot+1%} to barrier
-	close player's inventory
+			set {_} to random element of indices of {gui::*} parsed as number
+			set score of loop-player for {_o} to {_}
+		loop indices of {_a::*}:
+			set score of player(loop-value) for {_o} to {_a::%loop-value%}
+		close all players's inventory

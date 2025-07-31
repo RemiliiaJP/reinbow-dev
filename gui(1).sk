@@ -1,4 +1,5 @@
 command /gui:
+    permission: op
     trigger:
         open chest inventory with 6 row named "&a&lGUIMENU" to player
         set {_i} to 0
@@ -64,15 +65,12 @@ command /gui:
             index of loop-value is not 200
             set slot loop-counter - 1 of player's current inventory to loop-value
             
-        set slot 53 of player's current inventory to barrier named "閉じる"
+#        set slot 53 of player's current inventory to barrier named "閉じる"
 on inventory click:
     name of event-inventory is "&a&lGUIMENU"
     cancel event
-    if event-item is stone named "Yeah":
-        send "Yeah" to player
-    execute player command "scoreboard players set @s ability %index of event-slot+1%"
-
+    command "scoreboard players set %player% ability %index of event-slot+1%"
     if event-item is ender pearl named "転移":
-        execute player command "scoreboard players set @s ability 200"
+        command "scoreboard players set %player% ability 200"
     if event-item is barrier named "閉じる":
         close player's inventory
