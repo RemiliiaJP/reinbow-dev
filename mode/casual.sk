@@ -2,12 +2,10 @@ command /casual:
     permission: op
     trigger:
         player command "select-solo" 
-        set {_t} to objective with id "tier"
         set {casual} to true
-        wait 2 tick
-#        set max health of all players to 3
 every tick:
     {casual} is true
+    set max health of all players to 3
     loop all players:
         level of loop-player+level progress of loop-player > 1
         set level of loop-player to 1
