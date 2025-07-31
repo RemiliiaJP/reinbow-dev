@@ -6,7 +6,7 @@ every tick:
 	set {_o4} to objective with id "ability2"
 	loop all players:
 		set line 8 of fastboard of loop-player to "mode: %{mode}% game: %{game}%"
-		set line 9 of fastboard of loop-player to "表: %{_o3}% 裏: %{_o4}%"
+		set line 9 of fastboard of loop-player to "表: %score of loop-player for {_o3}% 裏: %score of loop-player for {_o4}%"
 		set line 10 of fastboard of loop-player to "ct: %score of loop-player for {_o}% ct: %score of loop-player for {_o2}% %{safe}%"
 on death:
 	set gamemode of victim to spectator
