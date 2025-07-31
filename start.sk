@@ -54,6 +54,7 @@ on command "/start":
 #        command "scoreboard players set %name of loop-player% ability %{_}%"
 		set score of loop-player for {_o} to {_} parsed as number
 		remove {_} from {_c::*}
+	wait 5 tick
 	if 1 = 1:
 		set {_o} to objective with id "ability"
 		loop all players:
@@ -272,7 +273,7 @@ every tick:
 		set {_o} to objective with id "ability"
 		score of loop-player for {_o} is 17
 		loop all players:
-			if health of loop-player-2 > 1:
+			if health of loop-player-2 >= 1:
 				command "glow unset %loop-player-2% %loop-player-1%"
 			set {_d} to distance between loop-player-1 and loop-player-2
 			loop-player-2 is not loop-player-1
@@ -315,15 +316,11 @@ on shoot:
 	delete projectile if {_rayb} is not set
 	delete projectile if {_ray} is set
 	teleport {_a} to {_rayb} if {_ray} is not set
-	set {_d} to distance between {_ray} and shooter 
-	set {_d} to distance between {_rayb} and shooter if {_ray} is not set
-	set {_d} to distance between {_rayb} and shooter if distance between shooter and {_ray} >= 15
-	loop {_d}*5 times:
-		set {_v} to vector in direction of shooter * loop-number /5
-		add vector 0, 1, 0 to {_v}
-		set {_l} to shooter offset by {_v}
-		draw 2 of dust using dustOption(dark red, 1) at {_l} with extra 127 with force
-#捕食
+	if {_ray} is not set:
+		draw 1 of dust using dustOption(dark red, 1) at ray({_s}, {_rayb}) with extra 127 with force
+	else:
+		draw 1 of dust using dustOption(dark red, 1) at ray({_s}, {_ray}) with extra 127 with force
+	#捕食
 on death of player:
 	set {_o} to objective with id "ability"
 	score of attacker for {_o} is 25

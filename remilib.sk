@@ -120,3 +120,24 @@ command /skull <Offline Player>:
 	permission: op
 	trigger:
 		give arg's skull to player
+
+function ray(a: location, b: location, step: number=0.5) :: locations:
+    set {_ax} to x-coordinate of {_a}
+    set {_ay} to y-coordinate of {_a}
+    set {_az} to z-coordinate of {_a}
+    set {_bx} to x-coordinate of {_b}
+    set {_by} to y-coordinate of {_b}
+    set {_bz} to z-coordinate of {_b}
+    set {_dx} to {_bx} - {_ax}
+    set {_dy} to {_by} - {_ay}
+    set {_dz} to {_bz} - {_az}
+    set {_len} to sqrt({_dx}^2 + {_dy}^2 + {_dz}^2)
+    set {_steps} to floor({_len} / {_step})
+    set {_locs::*} to {_a}
+    loop {_steps} times:
+        set {_t} to loop-number / {_steps}
+        set {_x} to {_ax} + {_dx} * {_t}
+        set {_y} to {_ay} + {_dy} * {_t}
+        set {_z} to {_az} + {_dz} * {_t}
+        add location at {_x}, {_y}, {_z} in world of {_a} to {_locs::*}
+    return {_locs::*}
