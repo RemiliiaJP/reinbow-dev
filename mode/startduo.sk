@@ -19,6 +19,7 @@ command /start-duo:
 					command "glow %loop-player-2% %loop-player-1% green"
 command /end-duo:
 	aliases: duo-end
+	permission: op
 	trigger:
 		set {mode} to 0
 		remove {players::*} from all teams
