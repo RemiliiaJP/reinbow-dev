@@ -6,7 +6,6 @@ command /select-solo:
 		set {mode} to 1
 		set {_o} to objective with id "ability"
 		set {_g} to chest inventory with 6 row named "&a&lGUIMENU"
-		set {sel::*} to {gui::*}
 		loop {gui::*}:
 			index of loop-value is not 200
 			set slot loop-counter - 1 of {_g} to loop-value
