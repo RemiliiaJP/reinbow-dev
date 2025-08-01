@@ -387,15 +387,11 @@ on player drop of an bow:
 	ability_use(player, false) is -1
 	spawn vindicator at player
 	set {_e} to last spawned vindicator
-	make {_e} not visible
 	set {_e}'s ai to false
 	make {_e} silent
-	equip {_e} with player's skull
-	set {_e}'s chestplate to player's skull
 	add {_e} to {a30::%player%::*}
 	add {_e} to {target::%player%::*}
 	execute console command "/disguuid %uuid of {_e}% Player %name of player% setNameVisible false setItemInMainHand bow setSprinting true"
-	set {_e}'s scale attribute to 0.9
 	set pitch of {_e} to pitch of player
 	set health of {_e} to 1
 	push {_e} horizontally forward
@@ -425,7 +421,7 @@ on player drop of an bow:
 		wait 1 tick	
 		set pitch of {_e} to {_p}
 		set yaw of {_e} to {_y}
-		teleport {_e} 0.15 meter above {_l::%loop-counter%}
+		teleport {_e} at {_l::%loop-counter%}
 		if gamemode of player is spectator:
 			kill {_e}
 		if player is not online:
@@ -725,7 +721,9 @@ every tick:
 			set loop-player's level progress to score of loop-player for {_t}/4+1
 		else if {_l} != score of loop-player for {_t}/4+1:
 			increase level progress of loop-player by 0.01
-
+on swap hand items:
+	tool is arrow
+	cancel event
 
 
 #大盾
@@ -997,7 +995,7 @@ damage of player:
 	damage is not 0
 	damage type of damage source = arrow
 	set {_t} to objective with id "tier"
-	add (health of attacker*0.1)+({pot::%attacker%}*0.05) to damage
+	add (health of attacker*0.1)+({pot::%attacker%}*0.05)+({kill::%name of attacker%}*0.1) to damage
 
 on consume of potion:
 	add 1 to {pot::%player%}
@@ -1006,5 +1004,5 @@ every 5 tick:
 	set {_t} to objective with id "tier"
 	loop all players:
 		score of loop-player for {_o} is 51
-		send action bar "能力: 蓄力 常時発動 [+%(health of loop-player*0.1)+({pot::%loop-player%}*0.025)%ダメージ]" to loop-player
+		send action bar "能力: 蓄力 常時発動 [+%(health of loop-player*0.1)+({pot::%loop-player%}*0.025)+({kill::%name of loop-player%}*0.1)%ダメージ]" to loop-player
 		
