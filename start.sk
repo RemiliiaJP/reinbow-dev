@@ -231,7 +231,7 @@ on player drop of an bow:
 				set {_v} to (vector from upwards)*loop-counter-3
 				play crit {_v} {_r} to all players
 		wait 0.3 second
-#小転移
+#謳歌
 on player drop of an bow:
 	set {_o} to objective with id "ability"
 	score of player for {_o} is 18
@@ -916,7 +916,7 @@ function ability_use(p: player, get: boolean=true) :: number:
 	if score of {_p} for {_o} is 44:
 		set {_ct} to 600
 	if score of {_p} for {_o} is 18:
-		set {_ct} to 300
+		set {_ct} to 400
 	if score of {_p} for {_o} is 21:
 		set {_ct} to 444
 
@@ -935,9 +935,10 @@ on drop:
 	score of player for {_o} is 19
 	ability_use(player, false) is -1
 	play sound "item.crossbow.loading_end" to all players at player 
-	set tool of player to unbreakable crossbow of quick charge 5 and piercing 1 if event-item is bow
+	set tool of player to unbreakable crossbow of quick charge 5 and piercing 3 if event-item is bow
 	set tool of player to unbreakable bow if event-item is type of crossbow
 	add 1 to level of player
+	effect(player, speed, 4, 5 second)
 	if level progress of player+ level of player >= 3:
 		set level of player to 3
 
