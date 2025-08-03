@@ -2,11 +2,8 @@ command /gui:
     permission: op
     trigger:
         open chest inventory with 6 row named "&a&lGUIMENU" to player
-        set {_i} to 0
         set {_glass} to white stained glass pane named "&c&lクリック不可"
-        loop 54 times:
-            set slot {_i} of player's current inventory to {_glass}
-            add 1 to {_i}
+        set slot integers between 0 and 54 of player's current inventory to {_glass}
         clear {gui::*}
         set {gui::1} to blue dye named "疾走" with lore "&e「疾走」は、戦場を縦横無尽に駆け回る能力。%nl%&f走り続けることで移動距離が上昇する。5秒間走り続けることで最高速度に到達。最高速度時%nl%&fにジャンプをすると通常より飛距離が伸びる。また、最高速度時は1マスの段差を無視して走れる。%nl%%nl%&7操作%nl%&7 [SPACE] - 移動最大時、長距離ジャンプ"
         set {gui::2} to shulker shell named "浮遊" with lore "&e「浮遊」は、重力に縛られない移動が可能な能力。%nl%&f能力を使用した場所から30マス程度真上に飛び上がることができる。%nl%%nl%&7操作%nl%&7 [投げる(弓)] - 浮遊する"
@@ -61,7 +58,7 @@ command /gui:
         set {gui::200} to ender pearl named "転移" with lore "&e「転移」は、自身の好きな場所へテレポートすることができる能力。%nl%&f弓を投げて能力を使用すると、自分の飛ばした矢にテレポートすることができる。%nl%%nl%&7操作%nl%&7 [投げる(弓)] - 飛ばした矢へテレポートする"
         set {gui::50} to lightning rod named "雷撃" with lore "&e 「雷撃」は自身の放つ矢を バフや罠に変える事が出来る能力。%nl%&fスニークしながら射撃すると雷撃矢を放つことが出来る%nl%&f雷撃矢は放ってから暫くすると 空中に留まる%nl%&f雷撃矢の下を敵が通過すると落下し、着弾すると落雷し狭い範囲にダメージを与える%nl%&fまた、留まっている雷撃矢の近くに居ると本数に応じて様々なバフが付く%nl%%nl%&7操作%nl%&7 [SHIFT] しながら [射撃] - 雷撃矢を発射%nl%&7 [投げる(弓)] - 留まっている雷撃矢を一斉に落とす"
         set {gui::51} to magma block named "蓄力" with lore "&e 「蓄力」はパワーを蓄積し火力を増す事が出来る能力。%nl%&fポーションを飲む: +0.025%nl%&fキルする: +0.1%nl%&f1&c♥&f: +0.1"
-        set {gui::998} to white stained glass pane named "不明" with lore "&e「不明」は不明な数の不明な能力から5つを付与されます。%nl%&f能力の詳細は不明です%nl%&8ジャンプ,スニーク,矢を放つ,ポーションを飲む等で発動する事があると報告されています。%nl%&0この説明を書いてるヒトもそのくらいしか知りません%nl%&7[何かをする] - 何かが起こる"
+        set {gui::998} to white stained glass pane named "不明" with lore "&e「不明」は不明な数の不明な能力から5つを扱うことが出来ます。%nl%&f能力の詳細は不明です%nl%&f時間経過,一定回数ジャンプ,スニーク,矢を放つ,ポーションを飲む,ヒット,キル%nl%&fによって発動する事があると報告されています。%nl%&8また、選択モード以外で出るか不明%nl%&7[何かをする] - 何かが起こる"
         loop {gui::*}:
             index of loop-value is not 200
             set slot loop-counter - 1 of player's current inventory to loop-value
