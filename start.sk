@@ -45,7 +45,8 @@ on command "/start":
 	wait 2 tick
 	set {game} to true
 	set {_o} to objective with id "ability"
-	loop indices of {gui::*}: 
+	loop indices of {gui::*}:
+		loop-value is not 998
 		add loop-value to {_c::*}
 	loop shuffled all players:
 		{mode} is not 1
@@ -317,9 +318,9 @@ on shoot:
 	delete projectile if {_ray} is set
 	teleport {_a} to {_rayb} if {_ray} is not set
 	if {_ray} is not set:
-		draw 1 of dust using dustOption(dark red, 1) at ray({_s}, {_rayb}) with extra 127 with force
+		draw 2 of dust using dustOption(dark red, 1) at ray({_s}'s eye, {_rayb}) with extra 127 with force
 	else:
-		draw 1 of dust using dustOption(dark red, 1) at ray({_s}, {_ray}) with extra 127 with force
+		draw 2 of dust using dustOption(dark red, 1) at ray({_s}'s eye, {_ray}) with extra 127 with force
 	#捕食
 on death of player:
 	set {_o} to objective with id "ability"
@@ -350,8 +351,8 @@ every tick:
 	loop all players:
 		gamemode of loop-player is adventure or survival
 		score of loop-player for {_o} is 26
-		health of loop-player < 1.5
-		loop-player's max health is 5
+		health of loop-player <= 1
+		health of loop-player >= 0
 		send action bar "能力:背水 発動中" to loop-player
 		add potion effect of speed of tier 8 without particles for 6 tick to potion effects of loop-player
 		increase level progress of loop-player by 0.01
@@ -377,7 +378,7 @@ on death of player:
 
 #ボーダー等でアーマー壊れてくれ
 on damage of player:
-	damage victim's chestplate by 1 
+	damage victim's chestplate by 1000
 
 
 #分身
@@ -825,10 +826,10 @@ projectile hit:
 			loop-player is not shooter
 			if {mode} is 2, 3 or 4:
 				if team of loop-player is not team of shooter:
-					damage loop-player by 1
+#					damage loop-player by 1
 					delete projectile
 			else:
-				damage loop-player by 0.5
+#				damage loop-player by 0.5
 				delete projectile
 		wait tick
 on left click:

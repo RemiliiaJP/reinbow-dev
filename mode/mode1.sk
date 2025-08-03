@@ -20,7 +20,7 @@ command /select-solo:
 		command "/start"
 		wait 2 tick
 		loop all players:
-			set {_} to random element of indices of {gui::*} parsed as number
+			set {_} to random element of indices of {gui::*} where [input is not 998] parsed as number
 			set score of loop-player for {_o} to {_}
 		loop indices of {_a::*}:
 			set score of player(loop-value) for {_o} to {_a::%loop-value%}
