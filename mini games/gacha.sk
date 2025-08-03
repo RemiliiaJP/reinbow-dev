@@ -1,0 +1,15 @@
+command /gacha:
+    trigger:
+
+        loop 10 times:
+            if loop-number is 10:
+                add "%random element of {gui::*}'s name%" to {_g::*}
+            else:
+                add "%random element of {gui::*}'s name%、" to {_g::*}
+        set {_result} to "%join {_g::*}%"
+        set {_} to "https://x.com/intent/post?text=能力10連ガチャの結果は%{_result}%でした！＃れいんボウ"
+        set {_url1} to {_}
+        set {_t1} to text component from "&a能力ガチャ結果をXで共有"
+        set click event of {_t1} to a new click event to open url {_url1}
+        send {_result} to player
+        send component {_t1} to player
