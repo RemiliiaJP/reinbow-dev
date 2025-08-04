@@ -41,12 +41,12 @@ on command "/start":
 	
 on command "/start":
 	syncscore()
-	player command "glow reset"
+	command "glow reset"
 	wait 2 tick
 	set {game} to true
 	set {_o} to objective with id "ability"
 	loop indices of {gui::*}:
-		loop-value is not 998
+		loop-value is not "998"
 		add loop-value to {_c::*}
 	loop shuffled all players:
 		{mode} is not 1
@@ -69,6 +69,8 @@ on command "/start":
 command /end:
 	permission: skript.admin
 	trigger:
+		command "/scoreboard players set @a ability_ct 2147483647"
+		send action bar "" to all players
 		syncscore()
 		command "glow reset"
 		set {_o} to objective with id "ability"
@@ -327,6 +329,7 @@ on death of player:
 	score of attacker for {_o} is 25
 	set {_t} to objective with id "tier"
 	give score of victim for {_t}/4 of tipped arrow to attacker
+	add 1 to max health of attacker
 	heal attacker by 5 heart
 on damage of player:
 	set {_o} to objective with id "ability"
@@ -381,7 +384,7 @@ on damage of player:
 	damage victim's chestplate by 1000
 
 
-#分身
+#分身 文鎮
 on player drop of an bow:
 	set {_o} to objective with id "ability"
 	score of player for {_o} is 30
@@ -648,7 +651,7 @@ on projectile hit:
 	set {_t::*} to players in radius 3.5 of projectile where [player input is not shooter]
 	damage {_t::*} by 0.5
 	play sound "entity.slime.jump" for {_t::*}
-	make 3 of explosion at projectile
+	make 1 of explosion at projectile
 	
 #縮身	
 on damage:
