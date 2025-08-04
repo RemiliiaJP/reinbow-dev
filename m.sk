@@ -1,0 +1,48 @@
+using damage source
+
+on projectile hit: 
+    projectile is arrow
+    shooter is player
+    victim is set
+    cancel event
+    kill projectile
+    set {_s} to shooter
+    set {_a} to projectile
+    set {_d} to a custom damage source:
+        set the damage type to arrow
+        set the causing entity to {_s}
+        set the direct entity to {_a}
+        set the damage location to location of {_a}
+    damage victim by 1 using {_d}
+    broadcast "B"
+arrow teleport:
+    cancel event
+on shoot:
+    shooter is player
+    projectile is arrow
+    set {_s} to shooter
+    set {_a} to projectile
+    set {_d} to a custom damage source:
+        set the damage type to arrow
+        set the causing entity to {_s}
+        set the direct entity to {_a}
+        set the damage location to location of {_a}
+    do while projectile is alive:
+        set {_l} to projectile's location
+        wait tick
+        projectile is alive
+        loop ray({_l},projectile's location,0.01):
+            loop all players:
+                loop-player is not shooter
+                set {_t} to loop-player's location ~ vector(0,1,0)
+                0.75 >= distance between loop-location and {_t}
+                damage loop-player by 1 using {_d}
+                kill projectile
+                stop loop
+        loop-counter > 80
+        stop loop
+
+projectile hit:
+    set {_o} to objective with id "ability"
+    score of shooter for {_o} is not 43
+    kill projectile

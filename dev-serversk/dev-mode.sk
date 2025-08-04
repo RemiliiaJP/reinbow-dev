@@ -19,24 +19,22 @@ command /sandback:
 			command "/disguuid %uuid of stray% Player dotchan setArrowsSticking 0 setHealth %health of stray% setName sandbag setTablistName sandbag"
 		do while {_s} is alive:
 			wait tick
-			loop all players in radius 1.5 meter around {_s}:
-				set {_d} to damage source from arrow directly by {_s}
-				force {_s} to attack loop-player
+			heal {_s} by 1
 on damage of stray:
+	attacker is not victim
+	attacker is player
 	damage is not 0
+	play sound "entity.firework_rocket.large_blast" with pitch 1 to attacker
+	play sound "entity.arrow.hit_player" with pitch 0 to attacker
 	if damage type of damage source = arrow:
 		set {_d} to distance between attacker and victim
 		health of victim - final damage >= 0
-		set {_t} to objective with id "tier"
-		add 0.25 to score of attacker for {_t}
+		command "/scoreboard players add %attacker% tier 1"
 		add 1 to {hit::%name of attacker%}
 		send "&l[&c&lHIT&f&l] %attacker% &e&l≫&6&l≫&c&l≫&4&l≫ &f&l%victim% &7(%{_d}%m)" to all players
 		send title "" with subtitle "&c&lHIT &6➳ &f&l%victim% &6&l(%{_d}%m)" to attacker
 		give tipped arrow named "[%{_d}%m HIT] おめでとう!" to attacker if {_d} >= 100
-		play sound "entity.experience_orb.pickup" to attacker
-		execute console command "scoreboard players add %shooter% ArrowHit 1"
-		execute console command "scoreboard players add %shooter% tier 1"
-		
+		execute console command "scoreboard players add %attacker% ArrowHit 1"
 command /mevsme:
     permission: op
     trigger:
@@ -73,7 +71,7 @@ on entity shoot bow:
 	loop all strays:
 		wait 1 tick
 		loop-value is alive
-		shoot projectile entity from loop-value at speed bow force
+		shoot projectile entity from loop-value at speed bow force*3
 function locc(l: location) :: location:
     return location(x coordinate of {_l}*-1, y coordinate of {_l}, z coordinate of {_l}*-1 )
 command /dev:

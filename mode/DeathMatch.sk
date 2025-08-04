@@ -1,0 +1,44 @@
+command /deathmatch:
+    permission: op
+    trigger:
+        if {deathmatch} is set:
+            clear {deathmatch}
+            clear {casual}
+            broadcast "&c&lデスマッチモード：無効"
+        else:
+            set {deathmatch} to true
+            set {casual} to true
+            broadcast "&a&lデスマッチモード：有効"
+
+on death of player:
+    {deathmatch} is true
+    wait 2 tick
+    set {_o} to objective with id "ability"
+    clear victim's inventory
+    set {_l} to {_p} offset by cylindrical vector radius (random integer between 2 and 240), yaw (random integer between -180 and 180), height 2
+    force victim to respawn
+    teleport victim at {_l}
+    set gamemode of victim to spectator
+    send title "&b復活まで5秒...." to victim
+    loop 5*20 time:
+        teleport victim to victim
+        wait 1 tick
+    set gamemode of victim to adventure
+    push victim upwards at speed 2
+    send title "&a復活しました！" to victim
+    set max health of victim to 3
+    set level of victim to 0
+    set level progress of victim to 0
+    set gamemode of victim to adventure
+    set slot 0 of victim's inventory to unbreakable bow named "&b&lデスマ弓"
+    wait 20 tick
+    set {_g} to chest inventory with 6 row named "&a&lGUIMENU"
+    loop {gui::*}:
+        index of loop-value is not 200
+        set slot loop-counter - 1 of {_g} to loop-value
+    open {_g} to victim
+on join:
+    wait 5 tick
+    {deathmatch} is true
+    kill player
+            

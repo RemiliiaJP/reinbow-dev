@@ -18,6 +18,7 @@ function admin_menu(p: player):
 	set slot 2 of {_gui} to spectral arrow named "ゲームモード選択" with lore "モード: エイプリルフール/solo" and "&7- 能力ランダム配布%nl%&7- 1人チーム%nl%&7- 能力2種類配布+切り替え可" if {menu.mode} is 6
 	set slot 2 of {_gui} to 3 arrow named "ゲームモード選択" with lore "モード: trio" and "&7- 能力ランダム配布%nl%&7- 3人チーム" if {menu.mode} is 2
 	set slot 2 of {_gui} to 1 chest named "ゲームモード選択" with lore "モード: β of casual","" and "&7- 能力選択可%nl%&7- 矢の最大数増加無効%nl%&7- 1人チーム%nl%&7- 1チャージで3本の矢" if {menu.mode} is 7
+	set slot 6 of {_gui} to wooden hoe named "コマンド部屋に飛ぶ"
 	set slot 8 of {_gui} to chest named "能力GUIを開く"
 	open {_gui} to {_p}
 on load:
@@ -43,6 +44,8 @@ on inventory click:
 			player command "april"
 		if {menu.mode} is 7:
 			player command "casual"
+	if index of event-slot is 6:
+		teleport player at location(-126, 72, 135)
 	if index of event-slot is 2:
 		mode_menu(player)
 	if index of event-slot is 8:

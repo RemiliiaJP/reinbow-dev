@@ -110,12 +110,11 @@ every tick:
 			add 1 to {r}
 		else if {r} is not 255:
 			add 1 to {b}
-on player move:
-	player's y coord >= 176
-	force teleport player 175-player's y coord meter upward player
-on jump:
-	player's y coord >= 175
-	force teleport player 175-player's y coord meter upward player
+every tick:
+	loop all players:
+		loop-player's y coord >= 176
+		teleport loop-player 175-loop-player's y coord meter upward loop-player
+
 command /skull <Offline Player>:
 	permission: op
 	trigger:

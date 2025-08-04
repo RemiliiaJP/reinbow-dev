@@ -1,0 +1,22 @@
+command /sit [<text>]:
+    trigger:
+        set {_cont} to true
+        {_cont} is set
+        if vehicle of player is set:
+            send "&cすでに座ってます。!" to player
+            stop
+        while player is not on ground:
+            set player's generic gravity attribute to 500
+            wait 1 tick
+        set player's generic gravity attribute to 0.08
+        set {_spawnloc} to location of player
+        spawn a item display at {_spawnloc}
+        set name of last spawned item display to "s"
+        set {_pig} to spawned item display
+        make the player ride {_pig}
+        while {_pig} is set:
+            wait 5 tick
+            passenger of {_pig} is not set
+            kill {_pig}
+            delete {_pig}
+            clear {_pig}

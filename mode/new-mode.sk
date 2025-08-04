@@ -5,7 +5,8 @@ command /april:
 		set {mode} to 1
 		command "/start"
 		wait 3 tick
-		loop indices of {gui::*}: 
+		loop indices of {gui::*}:
+			loop-value is not "998"
 			add loop-value to {_c::*}
 		set {_o} to objective with id "ability"
 		loop all players:
