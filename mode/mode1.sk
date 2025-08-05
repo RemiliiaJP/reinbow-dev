@@ -3,13 +3,13 @@ command /select-solo:
 	trigger:
 		clear {a::*}
 		set gamemode of all players to adventure
-		set {mode} to 1
+		set {mode} to 1 if {mode} is not 3
 		set {_o} to objective with id "ability"
 		set {_g} to chest inventory with 6 row named "&a&lGUIMENU"
 		loop {gui::*}:
 			index of loop-value is not 200
 			set slot loop-counter - 1 of {_g} to loop-value
-            
+		set slot integers between 0 and 55 of player's current inventory to white stained glass named " "            
 		loop 15*20 time: 
 			wait tick
 			loop all players:
@@ -17,7 +17,8 @@ command /select-solo:
 				set {_a::%loop-player%} to score of loop-player for {_o} 
 				loop-player's current inventory is not {_g}
 				open {_g} to loop-player
-		command "/start"
+		command "/start" if {mode} is 1
+		command "/start-duo" if {mode} is 3
 		wait 2 tick
 		loop all players:
 			set {_} to random element of indices of {gui::*} where [input is not 998] parsed as number
