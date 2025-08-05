@@ -14,7 +14,7 @@ on projectile hit:
         set the direct entity to {_a}
         set the damage location to location of {_a}
     damage victim by 1 using {_d}
-    broadcast "B"
+ #   broadcast "B"
 arrow teleport:
     cancel event
 on shoot:
@@ -34,6 +34,7 @@ on shoot:
         loop ray({_l},projectile's location,0.01):
             loop all players:
                 loop-player is not shooter
+                gamemode of loop-player is adventure
                 set {_t} to loop-player's location ~ vector(0,1,0)
                 0.75 >= distance between loop-location and {_t}
                 damage loop-player by 1 using {_d}
