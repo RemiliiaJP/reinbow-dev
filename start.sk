@@ -886,7 +886,7 @@ on death:
     loop indices of {target::*}:
         {target::%loop-value%::*} contains victim
         stop
-    command "/disguuid %attacker% Player %victim% setNameVisible false"
+    command "/disguuid %uuid of attacker% Player %victim% setNameVisible false"
     set {_va} to score of victim for {_o}
     set score of attacker for {_o} to {_va}
 on rightclick:
