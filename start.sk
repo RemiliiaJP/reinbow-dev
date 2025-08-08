@@ -52,7 +52,7 @@ on command "/start":
 		{mode} is not 1
 		{mode} is not 3
 		set {_} to random element of {_c::*}
-#        command "scoreboard players set %name of loop-player% ability %{_}%"
+#		command "scoreboard players set %name of loop-player% ability %{_}%"
 		set score of loop-player for {_o} to {_} parsed as number
 		remove {_} from {_c::*}
 	wait 5 tick
@@ -79,6 +79,7 @@ command /end:
 			gamemode of loop-player is adventure or survival
 			add name of loop-player to {death::*}
 		loop reversed {death::*}:
+			{deathmatch} is not true
 			if loop-counter is 1:
 				send "&e&l[#%loop-counter%] %loop-value%  %name of {gui::%score of loop-value for {_o}%}% %{kill::%loop-value%}%Kill, %{hit::%loop-value%}%Hit" to all players
 			else:
@@ -121,8 +122,6 @@ on damage:
 on damage of player:
 	attacker is victim
 	cancel event
-	projectile is arrow 
-	delete projectile
 
 
 inventory click:
@@ -190,7 +189,9 @@ projectile hit:
 	loop {target::%victim%::*}:
 		if loop-value is shooter:
 			cancel event
-
+	loop {target::%shooter%::*}:
+		if loop-value is victim:
+			cancel event
 #興奮
 on damage:
 	set {_o} to objective with id "ability"
@@ -301,6 +302,7 @@ on shoot:
 	set {_o} to objective with id "ability"
 	score of shooter for {_o} is 9
 	shooter is sneaking
+	cancel event
 #	reset velocity of projectile
 	add "gravity" to scoreboard tags of projectile
 	#set {_ray} to ray trace from shooter with max distance 888 with ray size 0.5 while ignoring passable blocks while ignoring all players where [gamemode of player input is not survival or adventure] and all entities where [distance between shooter and entity input <= 15] if {mode} is 0 or 1
@@ -316,9 +318,9 @@ on shoot:
 			set the causing entity to {_s}
 			set the direct entity to {_a}
 		damage {_ray} by 1 using {_d}
-	delete projectile if {_rayb} is not set
-	delete projectile if {_ray} is set
-	teleport {_a} to {_rayb} if {_ray} is not set
+	kill projectile if {_rayb} is not set
+	kill projectile if {_ray} is set
+	teleport projectile to {_rayb} if {_ray} is not set
 	if {_ray} is not set:
 		draw 2 of dust using dustOption(dark red, 1) at ray({_s}'s eye, {_rayb}) with extra 127 with force
 	else:
@@ -433,6 +435,7 @@ on player drop of an bow:
 		
 	remove {_e} from {a30::%player%::*}
 on damage of vindicator:
+
 	if attacker is vindicator:
 		cancel event
 	attacker is player
@@ -604,7 +607,7 @@ on entity target:
 
 #脱出 
 on damage:
-	set {_o} to objective with id "ability"    
+	set {_o} to objective with id "ability"	
 	score of victim for {_o} is 38
 	health of victim - final damage >= 0
 	damage type of damage source = arrow
@@ -628,7 +631,7 @@ on damage:
 	
 #引力  引き力
 on player drop of an bow:
-	set {_o} to objective with id "ability"    
+	set {_o} to objective with id "ability"	
 	score of player for {_o} is 40
 	ability_use(player, false) is -1
 	set {_v} to vector in direction of player
@@ -680,7 +683,7 @@ every tick:
 		else:
 			command "/end"
 			
-	rainbowText("れいんボウ")              
+	rainbowText("れいんボウ")			  
 	loop all players:
 		set title of fastboard of loop-player to join {fb::*}
 		set line 1 of fastboard of loop-player to "&bPlayer: &e%name of loop-player%"
@@ -752,7 +755,7 @@ on sneak toggle:
 	do while player is sneaking:
 		if {shield::%player%} is 5:
 			set item of {_a} to blue stained glass pane
-		if {shield::%player%} is 4:    
+		if {shield::%player%} is 4:	
 			set item of {_a} to light blue stained glass pane
 		if {shield::%player%} is 3:
 			set item of {_a} to lime stained glass pane
@@ -774,7 +777,7 @@ on sneak toggle:
 		loop arrows in radius 4.5 of player:
 			stop loop if {shield::%player%} <= 0
 			stop loop if shooter of loop-value is {_tm}
-      
+	  
 			make 1 of block marker particle using barrier at loop-value
 			delete loop-value
 			remove 1 from {shield::%player%}
@@ -829,10 +832,10 @@ projectile hit:
 			loop-player is not shooter
 			if {mode} is 2, 3 or 4:
 				if team of loop-player is not team of shooter:
-#					damage loop-player by 1
+					damage loop-player by 0.5
 					delete projectile
 			else:
-#				damage loop-player by 0.5
+				damage loop-player by 0.5
 				delete projectile
 		wait tick
 on left click:
@@ -840,10 +843,12 @@ on left click:
 	score of player for {_o} is 43
 	tool is bow
 	set item cooldown of bow for player to 1 second
-	loop all arrows in radius 5 meter of player:
+	size of all arrows in radius 5 meter of player >= 1
+	remove all tipped arrow from player
+	loop all arrows in radius 5 meter around player:
 		scoreboard tags of loop-entity contains "control"
 		delete loop-entity
-		give tipped arrow to player
+		give tipped arrow to player if loop-counter <= 3
 		send title "" with subtitle "&d周囲の矢を回収します"
 on drop of bow:
 	set {_o} to objective with id "ability"
@@ -880,15 +885,12 @@ on right click:
 	send "&6キル数: &b%{kill::%name of {_}%}% &6ヒット数: &b%{hit::%name of {_}%}%" to player
 	send "&6ポーション数: &b%number of potion in {_}'s inventory%個" to player
 	
-on death:
-    set {_o} to objective with id "ability"
-    attacker has scoreboard tag "henso"
-    loop indices of {target::*}:
-        {target::%loop-value%::*} contains victim
-        stop
-    command "/disguuid %uuid of attacker% Player %victim% setNameVisible false"
-    set {_va} to score of victim for {_o}
-    set score of attacker for {_o} to {_va}
+on damage of player:
+	set {_o} to objective with id "ability"
+	attacker has scoreboard tag "henso"
+	command "/disguuid %uuid of attacker% Player %victim% setNameVisible false"
+	set {_va} to score of victim for {_o}
+	set score of attacker for {_o} to {_va}
 on rightclick:
 	gamemode of player is adventure
 	event-entity is interaction
